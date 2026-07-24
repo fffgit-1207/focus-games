@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>专注力游戏合集 | Focus Games</title>
+<style>
+  :root {
+    --bg: #eef5f3;
+    --surface: #ffffff;
+    --surface2: #f2f7f6;
+    --accent: #2a9d8f;
+    --accent2: #4caf7d;
+    --text: #2c3e50;
+    --text2: #7d9a8f;
+    --gold: #d4a017;
+    --red: #e57373;
+    --green: #2a9d8f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 20px 20px;
+    background: linear-gradient(135deg, #e0f0ec, #eef5f3);
+  }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: var(--text2);
+    font-size: 0.95rem;
+  }
+
+  /* Navigation Tabs */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-btn {
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
+  .nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .nav-icon { margin-right: 4px; }
+
+  /* Main Container */
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+  .game-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .game-panel.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(8px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* Game Card */
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+  .card .desc {
+    color: var(--text2);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  /* Score Bar */
+  .score-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .score-item {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+  }
+  .score-item .val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .score-item .lbl {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #38b2a0; }
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    margin-left: 8px;
+  }
+  .btn-outline:hover { background: var(--accent); color: #fff; }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Difficulty Selector */
+  .diff-select {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .diff-btn {
+    padding: 6px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .diff-btn:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .diff-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* === SCHULTE GRID === */
+  .schulte-grid {
+    display: grid;
+    gap: 6px;
+    margin: 0 auto;
+    width: fit-content;
+  }
+  .schulte-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    transition: all 0.15s;
+    user-select: none;
+    border: 2px solid transparent;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .schulte-cell:hover:not(.done) {
+    background: #e0eeeb;
+    transform: scale(1.05);
+  }
+  .schulte-cell.done {
+    background: #d4edda;
+    color: #1b7e6e;
+    cursor: default;
+    border-color: #a8d5ba;
+  }
+  .schulte-cell.wrong {
+    animation: shake 0.4s;
+    background: #fbe9e9;
+    border-color: var(--red);
+  }
+  .schulte-cell.next {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(124,92,252,0.3);
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  /* === STROOP TEST === */
+  .stroop-display {
+    text-align: center;
+    padding: 30px 20px;
+    margin-bottom: 16px;
+    background: var(--surface2);
+    border-radius: 16px;
+  }
+  .stroop-word {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stroop-info {
+    color: var(--text2);
+    font-size: 0.85rem;
+  }
+  .stroop-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stroop-opt {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(0,0,0,0.08);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .stroop-opt:hover { background: #e0eeeb; transform: scale(1.02); }
+  .stroop-opt.correct-ans {
+    background: #d4edda;
+    border-color: var(--green);
+    animation: pulse 0.5s;
+  }
+  .stroop-opt.wrong-ans {
+    background: #fbe9e9;
+    border-color: var(--red);
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  /* === 2048 === */
+  .game2048-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--surface2);
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .cell2048 {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.3rem;
+    background: #dde8e5;
+    color: #2c3e50;
+    transition: all 0.1s;
+    min-width: 60px;
+    min-height: 60px;
+  }
+  .cell2048[data-v="2"] { background: #c8e6d8; color: #2c3e50; }
+  .cell2048[data-v="4"] { background: #a8d5c6; color: #2c3e50; }
+  .cell2048[data-v="8"] { background: #80cbc4; }
+  .cell2048[data-v="16"] { background: #4db6ac; }
+  .cell2048[data-v="32"] { background: #26a69a; }
+  .cell2048[data-v="64"] { background: #00897b; }
+  .cell2048[data-v="128"] { background: #80deea; color: #2c3e50; font-size: 1.1rem; }
+  .cell2048[data-v="256"] { background: #4dd0e1; color: #2c3e50; font-size: 1.1rem; }
+  .cell2048[data-v="512"] { background: #26c6da; font-size: 1.1rem; }
+  .cell2048[data-v="1024"] { background: #00bcd4; font-size: 1rem; }
+  .cell2048[data-v="2048"] { background: #0097a7; font-size: 1rem; }
+  .cell2048[data-v="4096"] { background: #2e7d32; font-size: 1rem; }
+  .cell2048.spawn { animation: popIn 0.15s; }
+  .cell2048.merge-anim { animation: mergePop 0.2s; }
+  @keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+  @keyframes mergePop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  /* === REACTION TEST === */
+  .react-area {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--surface2);
+    border-radius: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .react-area.waiting {
+    background: #fbe9e9;
+  }
+  .react-area.ready {
+    background: #d4edda;
+  }
+  .react-area .react-hint {
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .react-area .react-sub {
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  .react-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+  .react-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
+  .react-row .fast { color: var(--green); }
+  .react-row .slow { color: var(--red); }
+
+  /* History */
+  .history-section {
+    margin-top: 24px;
+  }
+  .history-section h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--text2);
+  }
+  .history-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+  }
+  .best-score {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text2);
+    font-size: 0.8rem;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    z-index: 200;
+    animation: toastIn 0.3s, toastOut 0.3s 1.7s forwards;
+  }
+  @keyframes toastIn {
+    from { opacity:0; transform:translateX(-50%) translateY(-20px); }
+    to { opacity:1; transform:translateX(-50%) translateY(0); }
+  }
+  @keyframes toastOut {
+    from { opacity:1; }
+    to { opacity:0; }
+  }
+
+  /* Responsive */
+  @media (max-width:480px) {
+    .header h1 { font-size: 1.5rem; }
+    .card { padding: 18px; }
+    .schulte-cell { min-width: 36px; min-height: 36px; font-size: 0.95rem; }
+    .cell2048 { min-width: 50px; min-height: 50px; font-size: 1.1rem; }
+    .stroop-word { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧠 专注力游戏合集</h1>
+  <p>精选脑力训练游戏，提升专注力与认知能力</p>
+</div>
+
+<nav class="nav" id="nav">
+  <button class="nav-btn active" data-game="schulte">
+    <span class="nav-icon">🔢</span>舒尔特方格
+  </button>
+  <button class="nav-btn" data-game="stroop">
+    <span class="nav-icon">🎨</span>斯特鲁普测试
+  </button>
+  <button class="nav-btn" data-game="2048">
+    <span class="nav-icon">🧩</span>2048
+  </button>
+  <button class="nav-btn" data-game="react">
+    <span class="nav-icon">⚡</span>反应测试
+  </button>
+</nav>
+
+<div class="main">
+
+  <!-- === 舒尔特方格 === -->
+  <div class="game-panel active" id="panel-schulte">
+    <div class="card">
+      <h2>舒尔特方格</h2>
+      <p class="desc">按顺序从 1 点击到 N，训练视觉搜索速度与专注力。难度越高，方格越大。</p>
+      <div class="diff-select" id="schulte-diffs">
+        <button class="diff-btn" data-size="3">3×3</button>
+        <button class="diff-btn active" data-size="4">4×4</button>
+        <button class="diff-btn" data-size="5">5×5</button>
+        <button class="diff-btn" data-size="6">6×6</button>
+        <button class="diff-btn" data-size="7">7×7</button>
+      </div>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="schulte-time">--</div><div class="lbl">用时（秒）</div></div>
+        <div class="score-item"><div class="val" id="schulte-best">--</div><div class="lbl">最佳纪录</div></div>
+        <div class="score-item"><div class="val" id="schulte-errors">0</div><div class="lbl">错误次数</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <button class="btn btn-primary" id="schulte-start">开始计时</button>
+        <button class="btn btn-outline" id="schulte-reset">重新生成</button>
+      </div>
+      <div class="schulte-grid" id="schulte-grid"></div>
+      <div class="history-section" id="schulte-history-section" style="display:none">
+        <h3>📊 历史记录</h3>
+        <div class="history-list" id="schulte-history"></div>
+        <button class="btn btn-outline" style="margin-top:8px;margin-left:0;" id="schulte-clear-history">清空记录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 斯特鲁普测试 === -->
+  <div class="game-panel" id="panel-stroop">
+    <div class="card">
+      <h2>斯特鲁普效应测试</h2>
+      <p class="desc">屏幕显示彩色文字，请选择文字本身的"颜色"而非字义。例如看到一个红色的"蓝"字，应选红色。</p>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="stroop-score">0</div><div class="lbl">得分</div></div>
+        <div class="score-item"><div class="val" id="stroop-correct">0</div><div class="lbl">正确</div></div>
+        <div class="score-item"><div class="val" id="stroop-total">0</div><div class="lbl">总题数</div></div>
+      </div>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="stroop-accuracy">--</div><div class="lbl">正确率</div></div>
+        <div class="score-item"><div class="val" id="stroop-avgtime">--</div><div class="lbl">平均反应时(ms)</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <button class="btn btn-primary" id="stroop-start">开始测试</button>
+        <span style="margin-left:12px;color:var(--text2);font-size:0.85rem;">共 20 题</span>
+      </div>
+      <div class="stroop-display" id="stroop-display" style="display:none;">
+        <div class="stroop-word" id="stroop-word"></div>
+        <div class="stroop-info" id="stroop-info">这个字是什么颜色？</div>
+      </div>
+      <div class="stroop-options" id="stroop-options" style="display:none;"></div>
+      <div class="history-section" id="stroop-history-section" style="display:none">
+        <h3>📊 历史记录</h3>
+        <div class="history-list" id="stroop-history"></div>
+        <button class="btn btn-outline" style="margin-top:8px;margin-left:0;" id="stroop-clear-history">清空记录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 2048 === -->
+  <div class="game-panel" id="panel-2048">
+    <div class="card">
+      <h2>2048</h2>
+      <p class="desc">用方向键或滑动合并相同数字，达到 2048 即为胜利。经典的脑力体操游戏。</p>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="t2048-score">0</div><div class="lbl">当前分数</div></div>
+        <div class="score-item"><div class="val" id="t2048-best">--</div><div class="lbl">最高分</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <button class="btn btn-primary" id="t2048-restart">重新开始</button>
+      </div>
+      <div class="game2048-board" id="t2048-board"></div>
+      <p style="text-align:center;margin-top:8px;color:var(--text2);font-size:0.8rem;">
+        键盘 ↑↓←→ 或触摸滑动操作
+      </p>
+    </div>
+  </div>
+
+  <!-- === 反应测试 === -->
+  <div class="game-panel" id="panel-react">
+    <div class="card">
+      <h2>反应速度测试</h2>
+      <p class="desc">当红色背景变为绿色时尽快点击。测试你的视觉反应速度，共 5 轮。</p>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="react-avg">--</div><div class="lbl">平均反应时(ms)</div></div>
+        <div class="score-item"><div class="val" id="react-best">--</div><div class="lbl">最快反应</div></div>
+        <div class="score-item"><div class="val" id="react-round">0/5</div><div class="lbl">当前轮次</div></div>
+      </div>
+      <div class="react-area" id="react-area">
+        <div class="react-hint" id="react-hint">点击这里开始</div>
+        <div class="react-sub" id="react-sub">等待背景变绿后立即点击</div>
+      </div>
+      <div class="react-list" id="react-list"></div>
+      <div class="history-section" id="react-history-section" style="display:none">
+        <h3>📊 历史记录</h3>
+        <div class="history-list" id="react-history"></div>
+        <button class="btn btn-outline" style="margin-top:8px;margin-left:0;" id="react-clear-history">清空记录</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  专注力游戏合集 · 所有游戏数据存储在浏览器本地 · 无需注册即可使用
+</div>
+
+<script>
+// ========================================
+// UTILS
+// ========================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function saveHistory(key, entry, maxLen) {
+  maxLen = maxLen || 20;
+  var h = JSON.parse(localStorage.getItem(key) || '[]');
+  entry.date = new Date().toLocaleString('zh-CN');
+  h.unshift(entry);
+  if (h.length > maxLen) h = h.slice(0, maxLen);
+  localStorage.setItem(key, JSON.stringify(h));
+  return h;
+}
+
+function loadHistory(key) {
+  return JSON.parse(localStorage.getItem(key) || '[]');
+}
+
+function clearHistory(key) {
+  localStorage.removeItem(key);
+}
+
+// ========================================
+// NAVIGATION
+// ========================================
+document.getElementById('nav').addEventListener('click', function(e) {
+  var btn = e.target.closest('.nav-btn');
+  if (!btn) return;
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var game = btn.dataset.game;
+  document.querySelectorAll('.game-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + game).classList.add('active');
+});
+
+// ========================================
+// SCHULTE GRID
+// ========================================
+(function() {
+  var gridSize = 4;
+  var currentNum = 1;
+  var totalCells = 0;
+  var startTime = null;
+  var timerInterval = null;
+  var errors = 0;
+  var started = false;
+  var finished = false;
+
+  var gridEl = document.getElementById('schulte-grid');
+  var timeEl = document.getElementById('schulte-time');
+  var bestEl = document.getElementById('schulte-best');
+  var errorsEl = document.getElementById('schulte-errors');
+  var startBtn = document.getElementById('schulte-start');
+  var resetBtn = document.getElementById('schulte-reset');
+  var historySection = document.getElementById('schulte-history-section');
+  var historyEl = document.getElementById('schulte-history');
+  var clearBtn = document.getElementById('schulte-clear-history');
+
+  var bestKey = 'fg_schulte_best';
+  var histKey = 'fg_schulte_hist';
+  var bestScores = JSON.parse(localStorage.getItem(bestKey) || '{}');
+
+  function showBest() {
+    var b = bestScores[gridSize];
+    bestEl.textContent = b ? b.time.toFixed(2) + 's' : '--';
+  }
+
+  function generateGrid() {
+    var nums = shuffle(Array.from({length: totalCells}, function(_, i) { return i + 1; }));
+    gridEl.innerHTML = '';
+    gridEl.style.gridTemplateColumns = 'repeat(' + gridSize + ', 1fr)';
+    nums.forEach(function(n) {
+      var cell = document.createElement('div');
+      cell.className = 'schulte-cell';
+      cell.textContent = n;
+      cell.dataset.num = n;
+      if (n === 1) cell.classList.add('next');
+      cell.addEventListener('click', function() { onCellClick(cell, n); });
+      gridEl.appendChild(cell);
+    });
+  }
+
+  function onCellClick(cell, num) {
+    if (finished) return;
+    if (!started && num === 1) {
+      startTimer();
+    }
+    if (!started) return;
+    if (num === currentNum) {
+      cell.classList.add('done');
+      cell.classList.remove('next');
+      currentNum++;
+      var nextCell = gridEl.querySelector('[data-num="' + currentNum + '"]');
+      if (nextCell) nextCell.classList.add('next');
+      if (currentNum > totalCells) {
+        finishGame();
+      }
+    } else if (!cell.classList.contains('done')) {
+      cell.classList.add('wrong');
+      errors++;
+      errorsEl.textContent = errors;
+      setTimeout(function() { cell.classList.remove('wrong'); }, 400);
+    }
+  }
+
+  function startTimer() {
+    started = true;
+    startTime = Date.now();
+    startBtn.disabled = true;
+    timerInterval = setInterval(function() {
+      timeEl.textContent = ((Date.now() - startTime) / 1000).toFixed(2);
+    }, 50);
+  }
+
+  function finishGame() {
+    finished = true;
+    started = false;
+    clearInterval(timerInterval);
+    var elapsed = (Date.now() - startTime) / 1000;
+    timeEl.textContent = elapsed.toFixed(2);
+
+    if (!bestScores[gridSize] || elapsed < bestScores[gridSize].time) {
+      bestScores[gridSize] = { time: elapsed, errors: errors };
+      localStorage.setItem(bestKey, JSON.stringify(bestScores));
+    }
+    showBest();
+
+    var h = saveHistory(histKey, {
+      game: '舒尔特方格',
+      size: gridSize + '×' + gridSize,
+      time: elapsed.toFixed(2),
+      errors: errors
+    });
+    renderHistory(h);
+    historySection.style.display = 'block';
+
+    if (errors === 0) {
+      showToast('🎉 完成！用时 ' + elapsed.toFixed(2) + 's，零失误！');
+    } else {
+      showToast('完成！用时 ' + elapsed.toFixed(2) + 's，' + errors + ' 次错误');
+    }
+  }
+
+  function resetGame() {
+    currentNum = 1;
+    errors = 0;
+    started = false;
+    finished = false;
+    startTime = null;
+    clearInterval(timerInterval);
+    timeEl.textContent = '--';
+    errorsEl.textContent = '0';
+    startBtn.disabled = false;
+    generateGrid();
+    showBest();
+  }
+
+  function renderHistory(h) {
+    if (h.length === 0) {
+      historyEl.innerHTML = '<div style="color:#7d9a8f;font-size:0.85rem;padding:8px;">暂无记录</div>';
+      return;
+    }
+    historyEl.innerHTML = h.map(function(e) {
+      return '<div class="history-item"><span>' + e.size + ' · ' + e.date + '</span><span>' + e.time + 's · ' + e.errors + '错</span></div>';
+    }).join('');
+  }
+
+  totalCells = gridSize * gridSize;
+  generateGrid();
+  showBest();
+
+  var initHist = loadHistory(histKey);
+  if (initHist.length > 0) {
+    renderHistory(initHist);
+    historySection.style.display = 'block';
+  }
+
+  document.getElementById('schulte-diffs').addEventListener('click', function(e) {
+    var btn = e.target.closest('.diff-btn');
+    if (!btn || btn.classList.contains('active')) return;
+    document.querySelectorAll('#schulte-diffs .diff-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    gridSize = parseInt(btn.dataset.size);
+    totalCells = gridSize * gridSize;
+    resetGame();
+  });
+
+  startBtn.addEventListener('click', function() {
+    if (!started && !finished) startTimer();
+  });
+  resetBtn.addEventListener('click', resetGame);
+  clearBtn.addEventListener('click', function() {
+    clearHistory(histKey);
+    renderHistory([]);
+    historySection.style.display = 'none';
+  });
+})();
+
+// ========================================
+// STROOP TEST
+// ========================================
+(function() {
+  var colors = [
+    { name: '红', hex: '#ff4444' },
+    { name: '蓝', hex: '#4488ff' },
+    { name: '绿', hex: '#44cc44' },
+    { name: '黄', hex: '#ffcc00' }
+  ];
+
+  var questions = [];
+  var currentQ = 0;
+  var score = 0;
+  var correct = 0;
+  var totalTime = 0;
+  var qStartTime = 0;
+  var testing = false;
+
+  var displayEl = document.getElementById('stroop-display');
+  var wordEl = document.getElementById('stroop-word');
+  var infoEl = document.getElementById('stroop-info');
+  var optionsEl = document.getElementById('stroop-options');
+  var startBtn = document.getElementById('stroop-start');
+  var scoreEl = document.getElementById('stroop-score');
+  var correctEl = document.getElementById('stroop-correct');
+  var totalEl = document.getElementById('stroop-total');
+  var accuracyEl = document.getElementById('stroop-accuracy');
+  var avgTimeEl = document.getElementById('stroop-avgtime');
+  var historySection = document.getElementById('stroop-history-section');
+  var historyEl = document.getElementById('stroop-history');
+  var clearBtn = document.getElementById('stroop-clear-history');
+
+  var histKey = 'fg_stroop_hist';
+
+  function generateQuestions() {
+    questions = [];
+    for (var i = 0; i < 20; i++) {
+      var wordColor, wordText;
+      do {
+        wordColor = colors[Math.floor(Math.random() * colors.length)];
+        wordText = colors[Math.floor(Math.random() * colors.length)];
+      } while (wordColor.name === wordText.name);
+      var opts = shuffle(colors);
+      questions.push({ wordColor: wordColor, wordText: wordText, options: opts });
+    }
+  }
+
+  function showQuestion() {
+    if (currentQ >= questions.length) {
+      finishTest();
+      return;
+    }
+    var q = questions[currentQ];
+    wordEl.textContent = q.wordText.name;
+    wordEl.style.color = q.wordColor.hex;
+    infoEl.textContent = '第 ' + (currentQ + 1) + ' / 20 题 — 这个字是什么颜色？';
+    optionsEl.innerHTML = q.options.map(function(c) {
+      return '<button class="stroop-opt" data-color="' + c.name + '">' + c.name + '色</button>';
+    }).join('');
+    qStartTime = Date.now();
+  }
+
+  function onAnswer(colorName) {
+    if (!testing || currentQ >= questions.length) return;
+    var q = questions[currentQ];
+    var isCorrect = colorName === q.wordColor.name;
+    var rt = Date.now() - qStartTime;
+
+    if (isCorrect) {
+      correct++;
+      score += Math.max(10, 100 - Math.floor(rt / 10));
+    }
+    totalTime += rt;
+
+    var btns = optionsEl.querySelectorAll('.stroop-opt');
+    btns.forEach(function(b) {
+      if (b.dataset.color === q.wordColor.name) b.classList.add('correct-ans');
+      if (b.dataset.color === colorName && !isCorrect) b.classList.add('wrong-ans');
+      b.style.pointerEvents = 'none';
+    });
+
+    scoreEl.textContent = score;
+    correctEl.textContent = correct;
+    totalEl.textContent = currentQ + 1;
+    accuracyEl.textContent = ((correct / (currentQ + 1)) * 100).toFixed(1) + '%';
+    avgTimeEl.textContent = Math.round(totalTime / (currentQ + 1));
+
+    currentQ++;
+    setTimeout(function() { showQuestion(); }, 300);
+  }
+
+  function finishTest() {
+    testing = false;
+    startBtn.disabled = false;
+    displayEl.style.display = 'none';
+    optionsEl.style.display = 'none';
+    wordEl.textContent = '测试完成!';
+    infoEl.textContent = '正确率 ' + ((correct / 20) * 100).toFixed(1) + '%，平均反应时 ' + Math.round(totalTime / 20) + 'ms';
+
+    var h = saveHistory(histKey, {
+      game: '斯特鲁普测试',
+      correct: correct,
+      total: 20,
+      accuracy: ((correct / 20) * 100).toFixed(1),
+      avgRt: Math.round(totalTime / 20)
+    });
+    renderHistory(h);
+    historySection.style.display = 'block';
+    showToast('测试完成！正确率 ' + ((correct / 20) * 100).toFixed(1) + '%');
+  }
+
+  function renderHistory(h) {
+    if (h.length === 0) {
+      historyEl.innerHTML = '<div style="color:#7d9a8f;font-size:0.85rem;padding:8px;">暂无记录</div>';
+      return;
+    }
+    historyEl.innerHTML = h.map(function(e) {
+      return '<div class="history-item"><span>' + e.date + '</span><span>正确 ' + e.correct + '/20 · ' + e.accuracy + '% · 平均 ' + e.avgRt + 'ms</span></div>';
+    }).join('');
+  }
+
+  optionsEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('.stroop-opt');
+    if (!btn) return;
+    onAnswer(btn.dataset.color);
+  });
+
+  startBtn.addEventListener('click', function() {
+    generateQuestions();
+    currentQ = 0;
+    score = 0;
+    correct = 0;
+    totalTime = 0;
+    testing = true;
+    scoreEl.textContent = '0';
+    correctEl.textContent = '0';
+    totalEl.textContent = '0';
+    accuracyEl.textContent = '--';
+    avgTimeEl.textContent = '--';
+    startBtn.disabled = true;
+    displayEl.style.display = 'block';
+    optionsEl.style.display = 'grid';
+    showQuestion();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    clearHistory(histKey);
+    renderHistory([]);
+    historySection.style.display = 'none';
+  });
+
+  var initHist = loadHistory(histKey);
+  if (initHist.length > 0) {
+    renderHistory(initHist);
+    historySection.style.display = 'block';
+  }
+})();
+
+// ========================================
+// 2048
+// ========================================
+(function() {
+  var board = [];
+  var score = 0;
+  var bestScore = parseInt(localStorage.getItem('fg_2048_best') || '0');
+  var gameOver = false;
+
+  var boardEl = document.getElementById('t2048-board');
+  var scoreEl = document.getElementById('t2048-score');
+  var bestEl = document.getElementById('t2048-best');
+  var restartBtn = document.getElementById('t2048-restart');
+
+  bestEl.textContent = bestScore || '--';
+
+  function emptyBoard() {
+    return [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  }
+
+  function addRandom() {
+    var empty = [];
+    for (var r = 0; r < 4; r++)
+      for (var c = 0; c < 4; c++)
+        if (board[r][c] === 0) empty.push([r, c]);
+    if (empty.length === 0) return;
+    var pos = empty[Math.floor(Math.random() * empty.length)];
+    board[pos[0]][pos[1]] = Math.random() < 0.9 ? 2 : 4;
+  }
+
+  function initGame() {
+    board = emptyBoard();
+    score = 0;
+    gameOver = false;
+    addRandom();
+    addRandom();
+    scoreEl.textContent = '0';
+    renderBoard();
+  }
+
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    for (var r = 0; r < 4; r++) {
+      for (var c = 0; c < 4; c++) {
+        var cell = document.createElement('div');
+        cell.className = 'cell2048';
+        var v = board[r][c];
+        if (v > 0) {
+          cell.textContent = v;
+          cell.dataset.v = v;
+        } else {
+          cell.dataset.v = '';
+        }
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function slide(row) {
+    var arr = row.filter(function(x) { return x !== 0; });
+    for (var i = 0; i < arr.length - 1; i++) {
+      if (arr[i] === arr[i + 1]) {
+        arr[i] *= 2;
+        score += arr[i];
+        arr.splice(i + 1, 1);
+      }
+    }
+    while (arr.length < 4) arr.push(0);
+    return arr;
+  }
+
+  function moveLeft() {
+    var moved = false;
+    for (var r = 0; r < 4; r++) {
+      var old = board[r].join(',');
+      board[r] = slide(board[r]);
+      if (old !== board[r].join(',')) moved = true;
+    }
+    return moved;
+  }
+
+  function moveRight() {
+    var moved = false;
+    for (var r = 0; r < 4; r++) {
+      var old = board[r].join(',');
+      board[r] = slide(board[r].slice().reverse()).reverse();
+      if (old !== board[r].join(',')) moved = true;
+    }
+    return moved;
+  }
+
+  function moveUp() {
+    var moved = false;
+    for (var c = 0; c < 4; c++) {
+      var col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+      var newCol = slide(col);
+      if (col.join(',') !== newCol.join(',')) moved = true;
+      for (var r = 0; r < 4; r++) board[r][c] = newCol[r];
+    }
+    return moved;
+  }
+
+  function moveDown() {
+    var moved = false;
+    for (var c = 0; c < 4; c++) {
+      var col = [board[0][c], board[1][c], board[2][c], board[3][c]];
+      var newCol = slide(col.slice().reverse()).reverse();
+      if (col.join(',') !== newCol.join(',')) moved = true;
+      for (var r = 0; r < 4; r++) board[r][c] = newCol[r];
+    }
+    return moved;
+  }
+
+  function canMove() {
+    for (var r = 0; r < 4; r++)
+      for (var c = 0; c < 4; c++) {
+        if (board[r][c] === 0) return true;
+        if (c < 3 && board[r][c] === board[r][c + 1]) return true;
+        if (r < 3 && board[r][c] === board[r + 1][c]) return true;
+      }
+    return false;
+  }
+
+  function doMove(moveFn) {
+    if (gameOver) return;
+    var moved = moveFn();
+    if (moved) {
+      addRandom();
+      renderBoard();
+      scoreEl.textContent = score;
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('fg_2048_best', bestScore);
+        bestEl.textContent = bestScore;
+      }
+      if (!canMove()) {
+        gameOver = true;
+        setTimeout(function() { showToast('游戏结束！最终分数: ' + score); }, 100);
+      }
+      for (var r = 0; r < 4; r++)
+        for (var c = 0; c < 4; c++)
+          if (board[r][c] === 2048 && !gameOver) {
+            showToast('🎉 达到 2048！你赢了！可以继续挑战更高分');
+          }
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    var panel = document.getElementById('panel-2048');
+    if (!panel.classList.contains('active')) return;
+    switch (e.key) {
+      case 'ArrowLeft': e.preventDefault(); doMove(moveLeft); break;
+      case 'ArrowRight': e.preventDefault(); doMove(moveRight); break;
+      case 'ArrowUp': e.preventDefault(); doMove(moveUp); break;
+      case 'ArrowDown': e.preventDefault(); doMove(moveDown); break;
+    }
+  });
+
+  var touchStartX = 0, touchStartY = 0;
+  boardEl.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive: true});
+  boardEl.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      doMove(dx > 0 ? moveRight : moveLeft);
+    } else {
+      doMove(dy > 0 ? moveDown : moveUp);
+    }
+  });
+
+  restartBtn.addEventListener('click', initGame);
+  initGame();
+})();
+
+// ========================================
+// REACTION TEST
+// ========================================
+(function() {
+  var IDLE = 'idle', WAITING = 'waiting', READY = 'ready', DONE = 'done';
+  var state = IDLE;
+  var round = 0;
+  var totalRounds = 5;
+  var times = [];
+  var waitTimeout = null;
+
+  var areaEl = document.getElementById('react-area');
+  var hintEl = document.getElementById('react-hint');
+  var subEl = document.getElementById('react-sub');
+  var avgEl = document.getElementById('react-avg');
+  var bestEl = document.getElementById('react-best');
+  var roundEl = document.getElementById('react-round');
+  var listEl = document.getElementById('react-list');
+  var historySection = document.getElementById('react-history-section');
+  var historyEl = document.getElementById('react-history');
+  var clearBtn = document.getElementById('react-clear-history');
+
+  var histKey = 'fg_react_hist';
+
+  function updateStats() {
+    if (times.length === 0) {
+      avgEl.textContent = '--';
+      bestEl.textContent = '--';
+      return;
+    }
+    var avg = Math.round(times.reduce(function(a, b) { return a + b; }, 0) / times.length);
+    var best = Math.min.apply(null, times);
+    avgEl.textContent = avg;
+    bestEl.textContent = best;
+  }
+
+  function renderList() {
+    listEl.innerHTML = times.map(function(t, i) {
+      var cls = t < 200 ? 'fast' : (t > 400 ? 'slow' : '');
+      return '<div class="react-row"><span>第 ' + (i + 1) + ' 轮</span><span class="' + cls + '">' + t + 'ms</span></div>';
+    }).join('');
+  }
+
+  function startRound() {
+    round++;
+    roundEl.textContent = round + '/' + totalRounds;
+    state = WAITING;
+    areaEl.className = 'react-area waiting';
+    hintEl.textContent = '等待变绿...';
+    subEl.textContent = '不要提前点击！';
+    var delay = 1500 + Math.random() * 2500;
+    waitTimeout = setTimeout(function() {
+      if (state === WAITING) {
+        state = READY;
+        areaEl.className = 'react-area ready';
+        hintEl.textContent = '现在点击！';
+        subEl.textContent = '尽快点击屏幕';
+        window._reactReadyTime = Date.now();
+      }
+    }, delay);
+  }
+
+  function handleClick() {
+    if (state === IDLE) {
+      times = [];
+      round = 0;
+      listEl.innerHTML = '';
+      avgEl.textContent = '--';
+      bestEl.textContent = '--';
+      startRound();
+      return;
+    }
+    if (state === WAITING) {
+      clearTimeout(waitTimeout);
+      state = IDLE;
+      areaEl.className = 'react-area';
+      hintEl.textContent = '太早了！点击重试';
+      subEl.textContent = '等背景变绿后再点击';
+      showToast('⏰ 太早了！请等变绿后再点击');
+      return;
+    }
+    if (state === READY) {
+      var rt = Date.now() - window._reactReadyTime;
+      times.push(rt);
+      updateStats();
+      renderList();
+      if (round >= totalRounds) {
+        state = IDLE;
+        areaEl.className = 'react-area';
+        hintEl.textContent = '测试完成！';
+        var avg = Math.round(times.reduce(function(a, b) { return a + b; }, 0) / times.length);
+        var best = Math.min.apply(null, times);
+        subEl.textContent = '平均 ' + avg + 'ms · 最快 ' + best + 'ms · 点击重新测试';
+
+        var h = saveHistory(histKey, {
+          game: '反应测试',
+          avg: avg,
+          best: best,
+          times: times.slice()
+        });
+        renderHistory(h);
+        historySection.style.display = 'block';
+        showToast('测试完成！平均 ' + avg + 'ms，最快 ' + best + 'ms');
+      } else {
+        startRound();
+      }
+    }
+  }
+
+  areaEl.addEventListener('click', handleClick);
+
+  function renderHistory(h) {
+    if (h.length === 0) {
+      historyEl.innerHTML = '<div style="color:#7d9a8f;font-size:0.85rem;padding:8px;">暂无记录</div>';
+      return;
+    }
+    historyEl.innerHTML = h.map(function(e) {
+      return '<div class="history-item"><span>' + e.date + '</span><span>平均 ' + e.avg + 'ms · 最快 <span class="best-score">' + e.best + 'ms</span></span></div>';
+    }).join('');
+  }
+
+  clearBtn.addEventListener('click', function() {
+    clearHistory(histKey);
+    renderHistory([]);
+    historySection.style.display = 'none';
+  });
+
+  var initHist = loadHistory(histKey);
+  if (initHist.length > 0) {
+    renderHistory(initHist);
+    historySection.style.display = 'block';
+  }
+})();
+
+// ========================================
+// TOAST
+// ========================================
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 2200);
+}
+</script>
+</body>
+</html>
