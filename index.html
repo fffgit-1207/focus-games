@@ -233,10 +233,6 @@
     background: #fbe9e9;
     border-color: var(--red);
   }
-  .schulte-cell.next {
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(124,92,252,0.3);
-  }
   @keyframes shake {
     0%,100% { transform: translateX(0); }
     25% { transform: translateX(-4px); }
@@ -679,7 +675,6 @@ document.getElementById('nav').addEventListener('click', function(e) {
       cell.className = 'schulte-cell';
       cell.textContent = n;
       cell.dataset.num = n;
-      if (n === 1) cell.classList.add('next');
       cell.addEventListener('click', function() { onCellClick(cell, n); });
       gridEl.appendChild(cell);
     });
@@ -693,10 +688,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
     if (!started) return;
     if (num === currentNum) {
       cell.classList.add('done');
-      cell.classList.remove('next');
       currentNum++;
-      var nextCell = gridEl.querySelector('[data-num="' + currentNum + '"]');
-      if (nextCell) nextCell.classList.add('next');
       if (currentNum > totalCells) {
         finishGame();
       }
