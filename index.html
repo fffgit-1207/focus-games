@@ -1388,14 +1388,15 @@ document.getElementById('nav').addEventListener('click', function(e) {
   var clearBtn = document.getElementById('cat-clear-history');
 
   var CAT_LEVELS = [
-    { r: 16, color: '#FFE0B2', border: '#FFCC80', name: '小奶猫', score: 10 },
-    { r: 22, color: '#FFCC80', border: '#FFB74D', name: '幼猫', score: 20 },
-    { r: 28, color: '#FFB74D', border: '#FFA726', name: '少年猫', score: 40 },
-    { r: 36, color: '#FFA726', border: '#FF9800', name: '青年猫', score: 80 },
-    { r: 44, color: '#FF9800', border: '#F57C00', name: '成年猫', score: 160 },
-    { r: 54, color: '#F57C00', border: '#E65100', name: '大猫', score: 320 },
-    { r: 66, color: '#E65100', border: '#BF360C', name: '巨猫', score: 640 },
-    { r: 80, color: '#BF360C', border: '#870000', name: '猫神', score: 1280 }
+    { r: 15, color: '#FFFFFF', border: '#E0E0E0', name: '小白奶猫', score: 10, eye: '#4A90D9', earIn: '#FFD1DC' },
+    { r: 20, color: '#7A9CC6', border: '#5A7CA6', name: '蓝白猫', score: 20, eye: '#B87333', earIn: '#E8D5F2' },
+    { r: 26, color: '#F5A623', border: '#D4840A', name: '橘猫', score: 40, eye: '#2E7D32', earIn: '#FFCC80' },
+    { r: 32, color: '#C48E5C', border: '#A06E3C', name: '狸花猫', score: 80, eye: '#388E3C', earIn: '#E8A87C' },
+    { r: 40, color: '#FFFFFF', border: '#333333', name: '奶牛猫', score: 160, eye: '#D84315', earIn: '#FFCDD2' },
+    { r: 48, color: '#B0BEC5', border: '#78909C', name: '银渐层', score: 320, eye: '#2E7D32', earIn: '#E1BEE7' },
+    { r: 56, color: '#E8B923', border: '#C89A00', name: '金渐层', score: 640, eye: '#1565C0', earIn: '#FFF59D' },
+    { r: 66, color: '#4A4A4A', border: '#2A2A2A', name: '缅因', score: 1280, eye: '#F9A825', earIn: '#CE93D8' },
+    { r: 78, color: '#F5D76E', border: '#D4B540', name: '金加白米努特', score: 2560, eye: '#1976D2', earIn: '#FFCCBC' }
   ];
 
   var W = 400, H = 520;
@@ -1580,6 +1581,9 @@ document.getElementById('nav').addEventListener('click', function(e) {
 
   function drawCatFace(x, y, r, level) {
     var info = CAT_LEVELS[level];
+    var isDark = level >= 7;
+    var isWhite = level === 0 || level === 4;
+
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fillStyle = info.color;
@@ -1588,8 +1592,68 @@ document.getElementById('nav').addEventListener('click', function(e) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    var earSize = r * 0.4;
-    var earOffset = r * 0.5;
+    if (level === 1) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(x, y + r * 0.35, r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (level === 3) {
+      ctx.strokeStyle = '#8D6E63';
+      ctx.lineWidth = 2;
+      for (var i = -1; i <= 1; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + i * r * 0.18, y - r * 0.35);
+        ctx.lineTo(x + i * r * 0.22, y - r * 0.6);
+        ctx.stroke();
+      }
+    }
+
+    if (level === 4) {
+      ctx.fillStyle = '#333333';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.35, y - r * 0.15, r * 0.28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x - r * 0.1, y + r * 0.25, r * 0.22, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (level === 5) {
+      ctx.fillStyle = '#ECEFF1';
+      ctx.beginPath();
+      ctx.arc(x, y + r * 0.3, r * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (level === 6) {
+      ctx.strokeStyle = '#5D4037';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - r * 0.35, y - r * 0.05);
+      ctx.quadraticCurveTo(x - r * 0.45, y - r * 0.15, x - r * 0.3, y - r * 0.25);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + r * 0.35, y - r * 0.05);
+      ctx.quadraticCurveTo(x + r * 0.45, y - r * 0.15, x + r * 0.3, y - r * 0.25);
+      ctx.stroke();
+    }
+
+    if (level === 8) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(x, y + r * 0.25, r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y - r * 0.35, r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    var earSize = r * 0.45;
+    var earOffset = r * 0.45;
+    if (level === 7) { earSize = r * 0.55; }
+
     ctx.beginPath();
     ctx.moveTo(x - earOffset, y - earOffset);
     ctx.lineTo(x - earOffset - earSize*0.3, y - earOffset - earSize);
@@ -1597,6 +1661,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
     ctx.closePath();
     ctx.fillStyle = info.color;
     ctx.fill();
+    ctx.strokeStyle = info.border;
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     ctx.beginPath();
@@ -1613,7 +1679,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
     ctx.lineTo(x - earOffset - earSize*0.15, y - earOffset - earSize*0.6);
     ctx.lineTo(x - earOffset + earSize*0.25, y - earOffset - earSize*0.15);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255,200,200,0.4)';
+    ctx.fillStyle = info.earIn;
     ctx.fill();
 
     ctx.beginPath();
@@ -1621,61 +1687,118 @@ document.getElementById('nav').addEventListener('click', function(e) {
     ctx.lineTo(x + earOffset + earSize*0.15, y - earOffset - earSize*0.6);
     ctx.lineTo(x + earOffset - earSize*0.25, y - earOffset - earSize*0.15);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255,200,200,0.4)';
+    ctx.fillStyle = info.earIn;
     ctx.fill();
 
-    var eyeR = r * 0.12;
-    var eyeOffsetX = r * 0.35;
-    var eyeOffsetY = r * 0.1;
-    ctx.fillStyle = '#333';
+    if (level === 7) {
+      ctx.fillStyle = info.color;
+      ctx.beginPath();
+      ctx.moveTo(x - earOffset - earSize*0.3, y - earOffset - earSize);
+      ctx.lineTo(x - earOffset - earSize*0.45, y - earOffset - earSize*1.3);
+      ctx.lineTo(x - earOffset, y - earOffset - earSize*0.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + earOffset + earSize*0.3, y - earOffset - earSize);
+      ctx.lineTo(x + earOffset + earSize*0.45, y - earOffset - earSize*1.3);
+      ctx.lineTo(x + earOffset, y - earOffset - earSize*0.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    var eyeR = r * 0.13;
+    var eyeOffsetX = r * 0.32;
+    var eyeOffsetY = r * 0.05;
+    var eyeColor = info.eye;
+    var pupilColor = isDark ? '#000' : '#222';
+
+    ctx.fillStyle = isWhite ? '#FFF' : 'rgba(255,255,255,0.9)';
     ctx.beginPath();
-    ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeR, 0, Math.PI * 2);
+    ctx.ellipse(x - eyeOffsetX, y - eyeOffsetY, eyeR * 1.1, eyeR * 1.3, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeR, 0, Math.PI * 2);
+    ctx.ellipse(x + eyeOffsetX, y - eyeOffsetY, eyeR * 1.1, eyeR * 1.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = eyeColor;
+    ctx.beginPath();
+    ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeR * 0.75, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeR * 0.75, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = pupilColor;
+    ctx.beginPath();
+    ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeR * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeR * 0.45, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(x - eyeOffsetX + eyeR*0.3, y - eyeOffsetY - eyeR*0.3, eyeR*0.4, 0, Math.PI * 2);
+    ctx.arc(x - eyeOffsetX + eyeR*0.25, y - eyeOffsetY - eyeR*0.25, eyeR*0.35, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(x + eyeOffsetX + eyeR*0.3, y - eyeOffsetY - eyeR*0.3, eyeR*0.4, 0, Math.PI * 2);
+    ctx.arc(x + eyeOffsetX + eyeR*0.25, y - eyeOffsetY - eyeR*0.25, eyeR*0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#ff9999';
+    if (level === 0 || level === 8) {
+      ctx.strokeStyle = isDark ? '#FFD1DC' : '#FFB6C1';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(x - eyeOffsetX, y - eyeOffsetY + eyeR*0.5, eyeR * 0.6, Math.PI * 0.8, Math.PI * 0.2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x + eyeOffsetX, y - eyeOffsetY + eyeR*0.5, eyeR * 0.6, Math.PI * 0.8, Math.PI * 0.2);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#FF8A95';
     ctx.beginPath();
-    ctx.moveTo(x, y + r * 0.05);
-    ctx.lineTo(x - r * 0.08, y + r * 0.15);
-    ctx.lineTo(x + r * 0.08, y + r * 0.15);
+    ctx.moveTo(x, y + r * 0.08);
+    ctx.lineTo(x - r * 0.07, y + r * 0.18);
+    ctx.lineTo(x + r * 0.07, y + r * 0.18);
     ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = isDark ? '#E0E0E0' : '#333';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(x, y + r * 0.15);
-    ctx.lineTo(x, y + r * 0.22);
+    ctx.moveTo(x, y + r * 0.18);
+    ctx.lineTo(x, y + r * 0.26);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(x - r * 0.06, y + r * 0.22, r * 0.06, 0, Math.PI, false);
+    ctx.arc(x - r * 0.06, y + r * 0.26, r * 0.06, 0, Math.PI, false);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(x + r * 0.06, y + r * 0.22, r * 0.06, 0, Math.PI, false);
+    ctx.arc(x + r * 0.06, y + r * 0.26, r * 0.06, 0, Math.PI, false);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    if (level === 2 || level === 5 || level === 6) {
+      ctx.strokeStyle = isDark ? '#AAA' : 'rgba(0,0,0,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x - r * 0.08, y + r * 0.02);
+      ctx.lineTo(x + r * 0.08, y + r * 0.02);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)';
     ctx.lineWidth = 1;
     var wLen = r * 0.5;
     ctx.beginPath();
-    ctx.moveTo(x - r*0.5, y + r*0.05);
-    ctx.lineTo(x - r*0.5 - wLen, y + r*0.02);
-    ctx.moveTo(x - r*0.5, y + r*0.12);
-    ctx.lineTo(x - r*0.5 - wLen, y + r*0.14);
-    ctx.moveTo(x + r*0.5, y + r*0.05);
-    ctx.lineTo(x + r*0.5 + wLen, y + r*0.02);
-    ctx.moveTo(x + r*0.5, y + r*0.12);
-    ctx.lineTo(x + r*0.5 + wLen, y + r*0.14);
+    ctx.moveTo(x - r*0.5, y + r*0.08);
+    ctx.lineTo(x - r*0.5 - wLen, y + r*0.05);
+    ctx.moveTo(x - r*0.5, y + r*0.15);
+    ctx.lineTo(x - r*0.5 - wLen, y + r*0.17);
+    ctx.moveTo(x + r*0.5, y + r*0.08);
+    ctx.lineTo(x + r*0.5 + wLen, y + r*0.05);
+    ctx.moveTo(x + r*0.5, y + r*0.15);
+    ctx.lineTo(x + r*0.5 + wLen, y + r*0.17);
     ctx.stroke();
   }
 
