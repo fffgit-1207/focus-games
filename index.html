@@ -453,8 +453,75 @@
     .card { padding: 18px; }
     .schulte-cell { min-width: 36px; min-height: 36px; font-size: 0.95rem; }
     .cell2048 { min-width: 50px; min-height: 50px; font-size: 1.1rem; }
-    .stroop-word { font-size: 2.2rem; }
-  }
+.stroop-word { font-size: 2.2rem; }
+}
+
+/* === CAT MERGE === */
+.cat-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(0,0,0,0.08);
+  background: #f8faf9;
+  user-select: none;
+  touch-action: none;
+}
+#cat-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cat-controls {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.cat-gameover {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 10;
+}
+.cat-gameover-inner {
+  text-align: center;
+}
+.cat-gameover-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.cat-gameover-score {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.cat-legend {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.cat-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text2);
+}
+.cat-legend-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
 </style>
 </head>
 <body>
@@ -476,6 +543,9 @@
   </button>
   <button class="nav-btn" data-game="react">
     <span class="nav-icon">⚡</span>反应测试
+  </button>
+  <button class="nav-btn" data-game="cat">
+    <span class="nav-icon">🐱</span>合成猫猫
   </button>
 </nav>
 
@@ -580,6 +650,39 @@
         <h3>📊 历史记录</h3>
         <div class="history-list" id="react-history"></div>
         <button class="btn btn-outline" style="margin-top:8px;margin-left:0;" id="react-clear-history">清空记录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === 合成猫猫头 === -->
+  <div class="game-panel" id="panel-cat">
+    <div class="card">
+      <h2>合成猫猫头</h2>
+      <p class="desc">控制掉落位置，相同大小的猫猫头碰撞后会合成更大的猫猫。小心不要堆到顶部红线！</p>
+      <div class="score-bar">
+        <div class="score-item"><div class="val" id="cat-score">0</div><div class="lbl">当前分数</div></div>
+        <div class="score-item"><div class="val" id="cat-best">0</div><div class="lbl">最高分</div></div>
+        <div class="score-item"><div class="val" id="cat-next">--</div><div class="lbl">下一个</div></div>
+      </div>
+      <div class="cat-controls">
+        <button class="btn btn-primary" id="cat-start">开始游戏</button>
+        <button class="btn btn-outline" id="cat-restart" style="display:none;margin-left:8px;">重新开始</button>
+      </div>
+      <div class="cat-container" id="cat-container">
+        <canvas id="cat-canvas"></canvas>
+        <div class="cat-gameover" id="cat-gameover" style="display:none;">
+          <div class="cat-gameover-inner">
+            <div class="cat-gameover-title">游戏结束</div>
+            <div class="cat-gameover-score" id="cat-final-score">0</div>
+            <button class="btn btn-primary" id="cat-restart-go">再来一局</button>
+          </div>
+        </div>
+      </div>
+      <div class="cat-legend" id="cat-legend"></div>
+      <div class="history-section" id="cat-history-section" style="display:none">
+        <h3>📊 历史记录</h3>
+        <div class="history-list" id="cat-history"></div>
+        <button class="btn btn-outline" style="margin-top:8px;margin-left:0;" id="cat-clear-history">清空记录</button>
       </div>
     </div>
   </div>
@@ -1262,6 +1365,439 @@ document.getElementById('nav').addEventListener('click', function(e) {
     renderHistory(initHist);
     historySection.style.display = 'block';
   }
+})();
+
+// ========================================
+// CAT MERGE GAME
+// ========================================
+(function() {
+  var canvas = document.getElementById('cat-canvas');
+  var ctx = canvas.getContext('2d');
+  var container = document.getElementById('cat-container');
+  var scoreEl = document.getElementById('cat-score');
+  var bestEl = document.getElementById('cat-best');
+  var nextEl = document.getElementById('cat-next');
+  var startBtn = document.getElementById('cat-start');
+  var restartBtn = document.getElementById('cat-restart');
+  var gameoverEl = document.getElementById('cat-gameover');
+  var finalScoreEl = document.getElementById('cat-final-score');
+  var restartGoBtn = document.getElementById('cat-restart-go');
+  var legendEl = document.getElementById('cat-legend');
+  var historyEl = document.getElementById('cat-history');
+  var historySection = document.getElementById('cat-history-section');
+  var clearBtn = document.getElementById('cat-clear-history');
+
+  var CAT_LEVELS = [
+    { r: 16, color: '#FFE0B2', border: '#FFCC80', name: '小奶猫', score: 10 },
+    { r: 22, color: '#FFCC80', border: '#FFB74D', name: '幼猫', score: 20 },
+    { r: 28, color: '#FFB74D', border: '#FFA726', name: '少年猫', score: 40 },
+    { r: 36, color: '#FFA726', border: '#FF9800', name: '青年猫', score: 80 },
+    { r: 44, color: '#FF9800', border: '#F57C00', name: '成年猫', score: 160 },
+    { r: 54, color: '#F57C00', border: '#E65100', name: '大猫', score: 320 },
+    { r: 66, color: '#E65100', border: '#BF360C', name: '巨猫', score: 640 },
+    { r: 80, color: '#BF360C', border: '#870000', name: '猫神', score: 1280 }
+  ];
+
+  var W = 400, H = 520;
+  var DPR = window.devicePixelRatio || 1;
+  var GRAVITY = 0.35;
+  var FRICTION = 0.99;
+  var BOUNCE = 0.35;
+  var DEADLINE_Y = 90;
+
+  var cats = [];
+  var score = 0;
+  var bestScore = parseInt(localStorage.getItem('fg_cat_best') || '0');
+  var nextLevel = 0;
+  var dropping = null;
+  var gameActive = false;
+  var gameOver = false;
+  var animId = null;
+  var mouseX = W/2;
+  var mergedThisFrame = [];
+
+  bestEl.textContent = bestScore;
+
+  function resizeCanvas() {
+    var rect = container.getBoundingClientRect();
+    var scale = rect.width / W;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = (H * scale) + 'px';
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function initLegend() {
+    legendEl.innerHTML = CAT_LEVELS.map(function(l) {
+      return '<div class="cat-legend-item"><div class="cat-legend-circle" style="background:'+l.color+';border:2px solid '+l.border+'"></div>'+l.name+'</div>';
+    }).join('');
+  }
+
+  function randomLevel() {
+    return Math.floor(Math.random() * 3);
+  }
+
+  function spawnDropping() {
+    nextLevel = randomLevel();
+    dropping = {
+      x: mouseX,
+      y: CAT_LEVELS[nextLevel].r + 4,
+      level: nextLevel,
+      r: CAT_LEVELS[nextLevel].r,
+      vy: 0,
+      vx: 0,
+      fixed: false
+    };
+    nextEl.textContent = CAT_LEVELS[nextLevel].name;
+  }
+
+  function drop() {
+    if (!dropping || dropping.fixed || !gameActive || gameOver) return;
+    dropping.fixed = true;
+    dropping.vy = 0;
+    dropping.vx = 0;
+    dropping.cooldown = 90;
+    cats.push(dropping);
+    dropping = null;
+    setTimeout(spawnDropping, 350);
+  }
+
+  function resolveCollisions() {
+    for (var i = 0; i < cats.length; i++) {
+      var c = cats[i];
+      if (c.x - c.r < 0) { c.x = c.r; c.vx = Math.abs(c.vx) * BOUNCE; }
+      if (c.x + c.r > W) { c.x = W - c.r; c.vx = -Math.abs(c.vx) * BOUNCE; }
+      if (c.y + c.r > H) { c.y = H - c.r; c.vy = -Math.abs(c.vy) * BOUNCE; c.vx *= 0.95; }
+      if (c.y - c.r < 0) { c.y = c.r; c.vy = Math.abs(c.vy) * BOUNCE; }
+    }
+    for (var pass = 0; pass < 4; pass++) {
+      for (var i = 0; i < cats.length; i++) {
+        for (var j = i + 1; j < cats.length; j++) {
+          var a = cats[i], b = cats[j];
+          var dx = b.x - a.x;
+          var dy = b.y - a.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          var minDist = a.r + b.r;
+          if (dist < minDist && dist > 0.1) {
+            var overlap = minDist - dist;
+            var nx = dx / dist;
+            var ny = dy / dist;
+            a.x -= nx * overlap * 0.5;
+            a.y -= ny * overlap * 0.5;
+            b.x += nx * overlap * 0.5;
+            b.y += ny * overlap * 0.5;
+            a.vx *= 0.96; a.vy *= 0.96;
+            b.vx *= 0.96; b.vy *= 0.96;
+          }
+        }
+      }
+    }
+  }
+
+  function checkMerges() {
+    for (var i = 0; i < cats.length; i++) {
+      for (var j = i + 1; j < cats.length; j++) {
+        var a = cats[i], b = cats[j];
+        if (a.level !== b.level) continue;
+        if (a.level >= CAT_LEVELS.length - 1) continue;
+        var dx = b.x - a.x;
+        var dy = b.y - a.y;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < (a.r + b.r) * 0.8) {
+          var newLevel = a.level + 1;
+          var newCat = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2,
+            vx: (a.vx + b.vx) * 0.3,
+            vy: (a.vy + b.vy) * 0.3,
+            level: newLevel,
+            r: CAT_LEVELS[newLevel].r,
+            fixed: true
+          };
+          cats.splice(j, 1);
+          cats.splice(i, 1);
+          cats.push(newCat);
+          score += CAT_LEVELS[newLevel].score;
+          scoreEl.textContent = score;
+          if (score > bestScore) {
+            bestScore = score;
+            bestEl.textContent = bestScore;
+            localStorage.setItem('fg_cat_best', bestScore);
+          }
+          mergedThisFrame.push({x: newCat.x, y: newCat.y, level: newLevel});
+          showToast('合成 ' + CAT_LEVELS[newLevel].name + '！+' + CAT_LEVELS[newLevel].score);
+          return;
+        }
+      }
+    }
+  }
+
+  function checkGameOver() {
+    for (var i = 0; i < cats.length; i++) {
+      var c = cats[i];
+      if (c.cooldown > 0) continue;
+      if (c.y - c.r < DEADLINE_Y) {
+        if (Math.abs(c.vy) < 3 && Math.abs(c.vx) < 3) {
+          endGame();
+          return;
+        }
+      }
+    }
+  }
+
+  function endGame() {
+    gameActive = false;
+    gameOver = true;
+    finalScoreEl.textContent = score;
+    gameoverEl.style.display = 'flex';
+    restartBtn.style.display = 'inline-block';
+    startBtn.style.display = 'none';
+    var h = saveHistory('fg_cat_hist', { game: '合成猫猫头', score: score });
+    renderHistory(h);
+    historySection.style.display = 'block';
+  }
+
+  function update() {
+    if (!gameActive || gameOver) return;
+    if (dropping && !dropping.fixed) {
+      dropping.x = mouseX;
+      dropping.r = CAT_LEVELS[dropping.level].r;
+    }
+    for (var i = 0; i < cats.length; i++) {
+      var c = cats[i];
+      c.vy += GRAVITY;
+      c.vx *= FRICTION;
+      c.x += c.vx;
+      c.y += c.vy;
+      if (c.cooldown > 0) c.cooldown--;
+    }
+    resolveCollisions();
+    checkMerges();
+    checkGameOver();
+  }
+
+  function drawCatFace(x, y, r, level) {
+    var info = CAT_LEVELS[level];
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = info.color;
+    ctx.fill();
+    ctx.strokeStyle = info.border;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    var earSize = r * 0.4;
+    var earOffset = r * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x - earOffset, y - earOffset);
+    ctx.lineTo(x - earOffset - earSize*0.3, y - earOffset - earSize);
+    ctx.lineTo(x - earOffset + earSize*0.5, y - earOffset - earSize*0.3);
+    ctx.closePath();
+    ctx.fillStyle = info.color;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x + earOffset, y - earOffset);
+    ctx.lineTo(x + earOffset + earSize*0.3, y - earOffset - earSize);
+    ctx.lineTo(x + earOffset - earSize*0.5, y - earOffset - earSize*0.3);
+    ctx.closePath();
+    ctx.fillStyle = info.color;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x - earOffset, y - earOffset);
+    ctx.lineTo(x - earOffset - earSize*0.15, y - earOffset - earSize*0.6);
+    ctx.lineTo(x - earOffset + earSize*0.25, y - earOffset - earSize*0.15);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,200,200,0.4)';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x + earOffset, y - earOffset);
+    ctx.lineTo(x + earOffset + earSize*0.15, y - earOffset - earSize*0.6);
+    ctx.lineTo(x + earOffset - earSize*0.25, y - earOffset - earSize*0.15);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,200,200,0.4)';
+    ctx.fill();
+
+    var eyeR = r * 0.12;
+    var eyeOffsetX = r * 0.35;
+    var eyeOffsetY = r * 0.1;
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(x - eyeOffsetX, y - eyeOffsetY, eyeR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + eyeOffsetX, y - eyeOffsetY, eyeR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(x - eyeOffsetX + eyeR*0.3, y - eyeOffsetY - eyeR*0.3, eyeR*0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + eyeOffsetX + eyeR*0.3, y - eyeOffsetY - eyeR*0.3, eyeR*0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff9999';
+    ctx.beginPath();
+    ctx.moveTo(x, y + r * 0.05);
+    ctx.lineTo(x - r * 0.08, y + r * 0.15);
+    ctx.lineTo(x + r * 0.08, y + r * 0.15);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y + r * 0.15);
+    ctx.lineTo(x, y + r * 0.22);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x - r * 0.06, y + r * 0.22, r * 0.06, 0, Math.PI, false);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x + r * 0.06, y + r * 0.22, r * 0.06, 0, Math.PI, false);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 1;
+    var wLen = r * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x - r*0.5, y + r*0.05);
+    ctx.lineTo(x - r*0.5 - wLen, y + r*0.02);
+    ctx.moveTo(x - r*0.5, y + r*0.12);
+    ctx.lineTo(x - r*0.5 - wLen, y + r*0.14);
+    ctx.moveTo(x + r*0.5, y + r*0.05);
+    ctx.lineTo(x + r*0.5 + wLen, y + r*0.02);
+    ctx.moveTo(x + r*0.5, y + r*0.12);
+    ctx.lineTo(x + r*0.5 + wLen, y + r*0.14);
+    ctx.stroke();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(231, 76, 60, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(0, DEADLINE_Y);
+    ctx.lineTo(W, DEADLINE_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(231,76,60,0.15)';
+    ctx.fillRect(0, 0, W, DEADLINE_Y);
+
+    for (var i = 0; i < cats.length; i++) {
+      var c = cats[i];
+      drawCatFace(c.x, c.y, c.r, c.level);
+    }
+
+    if (dropping && !dropping.fixed && gameActive && !gameOver) {
+      ctx.globalAlpha = 0.5;
+      drawCatFace(dropping.x, dropping.y, dropping.r, dropping.level);
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = 'rgba(42, 157, 143, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(dropping.x, dropping.y + dropping.r);
+      ctx.lineTo(dropping.x, H);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    for (var i = 0; i < mergedThisFrame.length; i++) {
+      var m = mergedThisFrame[i];
+      ctx.strokeStyle = CAT_LEVELS[m.level].border;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, CAT_LEVELS[m.level].r + 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    mergedThisFrame = [];
+  }
+
+  function loop() {
+    update();
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
+
+  function startGame() {
+    cats = [];
+    score = 0;
+    scoreEl.textContent = '0';
+    gameActive = true;
+    gameOver = false;
+    gameoverEl.style.display = 'none';
+    startBtn.style.display = 'none';
+    restartBtn.style.display = 'inline-block';
+    spawnDropping();
+    if (animId) cancelAnimationFrame(animId);
+    loop();
+  }
+
+  function getCanvasX(e) {
+    var rect = canvas.getBoundingClientRect();
+    var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    return (clientX - rect.left) * (W / rect.width);
+  }
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (!gameActive || gameOver) return;
+    var minR = dropping ? CAT_LEVELS[dropping.level].r : 16;
+    mouseX = Math.max(minR, Math.min(W - minR, getCanvasX(e)));
+  });
+
+  canvas.addEventListener('touchmove', function(e) {
+    if (!gameActive || gameOver) return;
+    e.preventDefault();
+    var minR = dropping ? CAT_LEVELS[dropping.level].r : 16;
+    mouseX = Math.max(minR, Math.min(W - minR, getCanvasX(e)));
+  }, {passive: false});
+
+  canvas.addEventListener('click', drop);
+  canvas.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    drop();
+  }, {passive: false});
+
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+  restartGoBtn.addEventListener('click', startGame);
+
+  function renderHistory(h) {
+    if (h.length === 0) {
+      historyEl.innerHTML = '<div style="color:#7d9a8f;font-size:0.85rem;padding:8px;">暂无记录</div>';
+      return;
+    }
+    historyEl.innerHTML = h.map(function(e) {
+      return '<div class="history-item"><span>' + e.date + '</span><span>得分 <span class="best-score">' + e.score + '</span></span></div>';
+    }).join('');
+  }
+
+  clearBtn.addEventListener('click', function() {
+    clearHistory('fg_cat_hist');
+    renderHistory([]);
+    historySection.style.display = 'none';
+  });
+
+  var initHist = loadHistory('fg_cat_hist');
+  if (initHist.length > 0) {
+    renderHistory(initHist);
+    historySection.style.display = 'block';
+  }
+
+  initLegend();
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  draw();
 })();
 
 // ========================================
