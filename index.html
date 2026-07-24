@@ -1504,7 +1504,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
         var dx = b.x - a.x;
         var dy = b.y - a.y;
         var dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < (a.r + b.r) * 0.8) {
+        if (dist < a.r + b.r + 4) {
           var newLevel = a.level + 1;
           var newCat = {
             x: (a.x + b.x) / 2,
@@ -1513,7 +1513,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
             vy: (a.vy + b.vy) * 0.3,
             level: newLevel,
             r: CAT_LEVELS[newLevel].r,
-            fixed: true
+            fixed: true,
+            cooldown: 60
           };
           cats.splice(j, 1);
           cats.splice(i, 1);
@@ -1730,6 +1731,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
   }
 
   function startGame() {
+    resizeCanvas();
     cats = [];
     score = 0;
     scoreEl.textContent = '0';
