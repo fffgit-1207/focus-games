@@ -1898,24 +1898,38 @@ document.getElementById('nav').addEventListener('click', function(e) {
       var endX = hook.originX + Math.sin(hook.angle) * hook.length;
       var endY = hook.originY + Math.cos(hook.angle) * hook.length;
 
+      var lineEndX = endX;
+      var lineEndY = endY;
+      var showJaw = true;
+
+      if (endY > DEADLINE_Y) {
+        var dy = endY - hook.originY;
+        var t = (DEADLINE_Y - hook.originY) / dy;
+        lineEndX = hook.originX + t * (endX - hook.originX);
+        lineEndY = DEADLINE_Y;
+        showJaw = false;
+      }
+
       ctx.strokeStyle = '#8D6E63';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(hook.originX, hook.originY);
-      ctx.lineTo(endX, endY);
+      ctx.lineTo(lineEndX, lineEndY);
       ctx.stroke();
 
-      ctx.strokeStyle = '#5D4037';
-      ctx.lineWidth = 2.5;
-      var ha = hook.angle;
-      ctx.beginPath();
-      ctx.moveTo(endX, endY);
-      ctx.lineTo(endX + Math.sin(ha - 0.55) * 12, endY + Math.cos(ha - 0.55) * 12);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(endX, endY);
-      ctx.lineTo(endX + Math.sin(ha + 0.55) * 12, endY + Math.cos(ha + 0.55) * 12);
-      ctx.stroke();
+      if (showJaw) {
+        ctx.strokeStyle = '#5D4037';
+        ctx.lineWidth = 2.5;
+        var ha = hook.angle;
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(endX + Math.sin(ha - 0.55) * 12, endY + Math.cos(ha - 0.55) * 12);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(endX + Math.sin(ha + 0.55) * 12, endY + Math.cos(ha + 0.55) * 12);
+        ctx.stroke();
+      }
 
       var alpha = (hook.state === 'swing') ? 0.5 : 0.85;
       ctx.globalAlpha = alpha;
