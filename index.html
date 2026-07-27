@@ -1475,6 +1475,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
     dropping = null;
   }
 
+  window._dropHook = function() { drop(); };
+
   function drop() {
     if (!dropping || dropping.fixed || !gameActive || gameOver) return;
     if (hook.state !== 'swing') return;
