@@ -1471,8 +1471,9 @@ document.getElementById('nav').addEventListener('click', function(e) {
 
     dropping.x = startX;
     dropping.y = startY + catR;
-    dropping.vx = 0;
-    dropping.vy = 4;
+    var throwSpeed = 4.5;
+    dropping.vx = throwSpeed * s;
+    dropping.vy = throwSpeed * c;
     dropping.fixed = false;
     dropping.cooldown = 90;
     cats.push(dropping);
