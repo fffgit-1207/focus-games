@@ -1919,7 +1919,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
 
       var alpha = (hook.state === 'swing') ? 0.5 : 0.85;
       ctx.globalAlpha = alpha;
-      drawCatFace(endX, endY + dropping.r, dropping.r, dropping.level);
+      var catY = Math.max(DEADLINE_Y + dropping.r, endY + dropping.r);
+      drawCatFace(endX, catY, dropping.r, dropping.level);
       ctx.globalAlpha = 1.0;
     }
 
@@ -1967,7 +1968,18 @@ document.getElementById('nav').addEventListener('click', function(e) {
   canvas.addEventListener('touchend', function(e) {
     e.preventDefault();
     onCanvasClick();
-  }, {passive: false});
+  }, {passive: false });
+
+  window.addEventListener('click', function(e) {
+    if (!gameActive || gameOver) return;
+    if (!dropping || dropping.fixed) return;
+    if (hook.state !== 'swing') return;
+    var rect = canvas.getBoundingClientRect();
+    if (e.clientX >= rect.left && e.clientX <= rect.right &&
+        e.clientY >= rect.top && e.clientY <= rect.bottom) {
+      drop();
+    }
+  });
 
   startBtn.addEventListener('click', startGame);
   restartBtn.addEventListener('click', startGame);
