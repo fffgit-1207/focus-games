@@ -1460,32 +1460,21 @@ document.getElementById('nav').addEventListener('click', function(e) {
     nextEl.textContent = CAT_LEVELS[nextLevel].name;
   }
 
-  function detachCat(endX, endY) {
+  function releaseCat() {
     if (!dropping) return;
-    dropping.x = endX;
-    dropping.y = endY + dropping.r;
-    dropping.vy = -hook.speed * Math.cos(hook.angle) * 0.5 + 2;
-    dropping.vx = -hook.speed * Math.sin(hook.angle) * 0.3;
-    dropping.fixed = true;
-    dropping.cooldown = 90;
-    cats.push(dropping);
-    dropping = null;
-  }
-
-  function drop() {
-    if (!dropping || dropping.fixed || !gameActive || gameOver) return;
-    if (hook.state !== 'swing') return;
-
     var s = Math.sin(hook.angle);
     var c = Math.cos(hook.angle);
     var catR = dropping.r;
 
-    var maxLen = 9999;
+    var startY = hook.originY + Math.cos(hook.angle) * HOOK_MIN_LEN;
+    var startX = hook.originX + Math.sin(hook.angle) * HOOK_MIN_LEN;
+    var maxLen = (H - catR - startY) / c;
+    if (maxLen < 10 || maxLen > 9999) maxLen = 9999;
 
     for (var i = 0; i < cats.length; i++) {
       var cat = cats[i];
-      var dx0 = hook.originX - cat.x;
-      var dy0 = hook.originY + catR - cat.y;
+      var dx0 = startX - cat.x;
+      var dy0 = startY + catR - cat.y;
       var b = dx0 * s + dy0 * c;
       var cc = dx0 * dx0 + dy0 * dy0 - (catR + cat.r + 2) * (catR + cat.r + 2);
       var disc = b * b - cc;
@@ -1493,22 +1482,35 @@ document.getElementById('nav').addEventListener('click', function(e) {
       var sq = Math.sqrt(disc);
       var t1 = -b - sq;
       var t2 = -b + sq;
-      var enterT = (t1 > HOOK_MIN_LEN) ? t1 : ((t2 > HOOK_MIN_LEN) ? t2 : -1);
-      if (enterT > HOOK_MIN_LEN && enterT < maxLen) {
+      var enterT = (t1 > 10) ? t1 : ((t2 > 10) ? t2 : -1);
+      if (enterT > 10 && enterT < maxLen) {
         maxLen = enterT;
       }
     }
 
     if (s > 0.001) {
-      var tR = (W - catR - hook.originX) / s;
-      if (tR > HOOK_MIN_LEN && tR < maxLen) maxLen = tR;
+      var tR = (W - catR - startX) / s;
+      if (tR > 10 && tR < maxLen) maxLen = tR;
     } else if (s < -0.001) {
-      var tL = (catR - hook.originX) / s;
-      if (tL > HOOK_MIN_LEN && tL < maxLen) maxLen = tL;
+      var tL = (catR - startX) / s;
+      if (tL > 10 && tL < maxLen) maxLen = tL;
     }
 
-    hook.maxLength = Math.max(HOOK_MIN_LEN, maxLen);
-    hook.state = 'shoot';
+    var dropLen = Math.max(10, maxLen);
+    dropping.x = startX + s * dropLen;
+    dropping.y = startY + c * dropLen + catR;
+    dropping.vx = 0;
+    dropping.vy = 0;
+    dropping.fixed = true;
+    dropping.cooldown = 90;
+    cats.push(dropping);
+    dropping = null;
+    setTimeout(spawnDropping, 200);
+  }
+
+  function drop() {
+    if (!dropping || dropping.fixed || !gameActive || gameOver) return;
+    releaseCat();
   }
 
   function resolveCollisions() {
@@ -1610,32 +1612,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
   function update() {
     if (!gameActive || gameOver) return;
 
-    if (hook.state === 'swing') {
-      hook.angle = Math.sin(Date.now() * SWING_SPEED) * SWING_RANGE;
-      hook.length = HOOK_MIN_LEN;
-    } else if (hook.state === 'shoot') {
-      hook.length += hook.speed;
-      if (hook.length >= hook.maxLength) {
-        hook.length = hook.maxLength;
-        hook.state = 'retract';
-      }
-    } else if (hook.state === 'retract') {
-      hook.length -= hook.speed;
-      if (dropping && !dropping.fixed) {
-        var endY = hook.originY + Math.cos(hook.angle) * hook.length;
-        if (endY <= DEADLINE_Y) {
-          var endX = hook.originX + Math.sin(hook.angle) * hook.length;
-          detachCat(endX, DEADLINE_Y);
-        }
-      }
-      if (hook.length <= HOOK_MIN_LEN) {
-        hook.length = HOOK_MIN_LEN;
-        hook.state = 'swing';
-        if (!dropping && !gameOver) {
-          setTimeout(spawnDropping, 200);
-        }
-      }
-    }
+    hook.angle = Math.sin(Date.now() * SWING_SPEED) * SWING_RANGE;
 
     for (var i = 0; i < cats.length; i++) {
       var c = cats[i];
@@ -1894,30 +1871,40 @@ document.getElementById('nav').addEventListener('click', function(e) {
     }
 
     if (gameActive && !gameOver && dropping && !dropping.fixed) {
-      var endX = hook.originX + Math.sin(hook.angle) * hook.length;
-      var endY = hook.originY + Math.cos(hook.angle) * hook.length;
+      var s = Math.sin(hook.angle);
+      var c = Math.cos(hook.angle);
+      var endX = hook.originX + s * HOOK_MIN_LEN;
+      var endY = hook.originY + c * HOOK_MIN_LEN;
+
+      var lineEndX = endX;
+      var lineEndY = endY;
+      if (endY > DEADLINE_Y) {
+        var dy = endY - hook.originY;
+        var t = (DEADLINE_Y - hook.originY) / dy;
+        lineEndX = hook.originX + t * (endX - hook.originX);
+        lineEndY = DEADLINE_Y;
+      }
 
       ctx.strokeStyle = '#8D6E63';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(hook.originX, hook.originY);
-      ctx.lineTo(endX, endY);
+      ctx.lineTo(lineEndX, lineEndY);
       ctx.stroke();
 
       ctx.strokeStyle = '#5D4037';
       ctx.lineWidth = 2.5;
       var ha = hook.angle;
       ctx.beginPath();
-      ctx.moveTo(endX, endY);
-      ctx.lineTo(endX + Math.sin(ha - 0.55) * 12, endY + Math.cos(ha - 0.55) * 12);
+      ctx.moveTo(lineEndX, lineEndY);
+      ctx.lineTo(lineEndX + Math.sin(ha - 0.55) * 12, lineEndY + Math.cos(ha - 0.55) * 12);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(endX, endY);
-      ctx.lineTo(endX + Math.sin(ha + 0.55) * 12, endY + Math.cos(ha + 0.55) * 12);
+      ctx.moveTo(lineEndX, lineEndY);
+      ctx.lineTo(lineEndX + Math.sin(ha + 0.55) * 12, lineEndY + Math.cos(ha + 0.55) * 12);
       ctx.stroke();
 
-      var alpha = (hook.state === 'swing') ? 0.5 : 0.85;
-      ctx.globalAlpha = alpha;
+      ctx.globalAlpha = 0.5;
       drawCatFace(endX, endY + dropping.r, dropping.r, dropping.level);
       ctx.globalAlpha = 1.0;
     }
