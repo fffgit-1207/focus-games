@@ -2422,23 +2422,11 @@ var badgeAlpha = 0;
   }
 
   function onCanvasClick() { drop(); }
-  canvas.addEventListener('mousedown', onCanvasClick);
   canvas.addEventListener('click', onCanvasClick);
   canvas.addEventListener('touchend', function(e) {
     e.preventDefault();
     onCanvasClick();
   }, {passive: false });
-
-  window.addEventListener('click', function(e) {
-    if (!gameActive || gameOver) return;
-    if (!dropping || dropping.fixed) return;
-    if (hook.state !== 'swing') return;
-    var rect = canvas.getBoundingClientRect();
-    if (e.clientX >= rect.left && e.clientX <= rect.right &&
-        e.clientY >= rect.top && e.clientY <= rect.bottom) {
-      drop();
-    }
-  });
 
   startBtn.addEventListener('click', startGame);
   restartBtn.addEventListener('click', startGame);
