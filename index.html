@@ -287,6 +287,14 @@
     background: #fbe9e9;
     border-color: var(--red);
   }
+  .stroop-display.correct-flash {
+    background: #d4edda;
+    transition: background 0.3s;
+  }
+  .stroop-display.wrong-flash {
+    background: #fbe9e9;
+    transition: background 0.5s;
+  }
   @keyframes pulse {
     0%,100% { transform: scale(1); }
     50% { transform: scale(1.05); }
@@ -349,13 +357,18 @@
     border-radius: 16px;
     cursor: pointer;
     user-select: none;
-    transition: background 0.1s;
+    transition: background 0.1s, transform 0.15s;
     min-height: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
+    border: 2px solid transparent;
+  }
+  .react-area:hover {
+    transform: scale(1.02);
+    border-color: var(--accent);
   }
   .react-area.waiting {
     background: #fbe9e9;
@@ -420,8 +433,167 @@
   .footer {
     text-align: center;
     padding: 20px;
-    color: var(--text2);
+    color: var(--text);
     font-size: 0.8rem;
+  }
+
+  /* User Bar */
+  .user-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.85rem;
+  }
+  .user-bar .user-name {
+    font-weight: 700;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .user-bar .user-name:hover {
+    text-decoration: underline;
+  }
+  .user-bar .user-action {
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .user-bar .user-action:hover {
+    color: var(--accent);
+  }
+
+  /* Rank Panel */
+  .rank-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    z-index: 1000;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    animation: fadeIn 0.2s ease;
+  }
+  .rank-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+  }
+  .rank-header h3 {
+    font-size: 1rem;
+  }
+  .rank-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text2);
+    padding: 0 4px;
+  }
+  .rank-close:hover {
+    color: var(--text);
+  }
+  .rank-empty {
+    padding: 32px;
+    text-align: center;
+    color: var(--text2);
+  }
+  .rank-list {
+    padding: 8px 0;
+  }
+  .rank-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+  .rank-item:hover {
+    background: var(--surface2);
+  }
+  .rank-item.rank-me {
+    background: #e8f5e9;
+    font-weight: 600;
+  }
+  .rank-pos {
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text2);
+  }
+  .rank-item.gold .rank-pos { color: #d4a017; }
+  .rank-item.silver .rank-pos { color: #9e9e9e; }
+  .rank-item.bronze .rank-pos { color: #cd7f32; }
+  .rank-name {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+  .rank-score {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 50px;
+    text-align: right;
+  }
+  .rank-games {
+    font-size: 0.75rem;
+    color: var(--text2);
+    min-width: 36px;
+    text-align: right;
+  }
+  .rank-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid rgba(0,0,0,0.08);
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .rank-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Data Management */
+  .data-mgmt {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .data-mgmt button {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--surface2);
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .data-mgmt button:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
   }
 
   /* Toast */
@@ -549,6 +721,12 @@
   </button>
 </nav>
 
+<div class="user-bar" id="user-bar">
+  <span>玩家：</span>
+  <span class="user-name" id="user-name-display" onclick="PlayerRank.ensureUsername()">未设置</span>
+  <span class="user-action" onclick="PlayerRank.ensureUsername()">[更换]</span>
+</div>
+
 <div class="main">
 
   <!-- === 舒尔特方格 === -->
@@ -571,6 +749,7 @@
       <div style="text-align:center;margin-bottom:16px;">
         <button class="btn btn-primary" id="schulte-start">开始计时</button>
         <button class="btn btn-outline" id="schulte-reset">重新生成</button>
+        <button class="rank-btn" onclick="PlayerRank.renderLeaderboardPanel('schulte', '舒尔特方格')">🏆 排行榜</button>
       </div>
       <div class="schulte-grid" id="schulte-grid"></div>
       <div class="history-section" id="schulte-history-section" style="display:none">
@@ -597,6 +776,7 @@
       </div>
       <div style="text-align:center;margin-bottom:16px;">
         <button class="btn btn-primary" id="stroop-start">开始测试</button>
+        <button class="rank-btn" onclick="PlayerRank.renderLeaderboardPanel('stroop', '斯特鲁普测试')">🏆 排行榜</button>
         <span style="margin-left:12px;color:var(--text2);font-size:0.85rem;">共 20 题</span>
       </div>
       <div class="stroop-display" id="stroop-display" style="display:none;">
@@ -623,6 +803,8 @@
       </div>
       <div style="text-align:center;margin-bottom:16px;">
         <button class="btn btn-primary" id="t2048-restart">重新开始</button>
+        <button class="btn btn-outline" id="t2048-undo" style="margin-left:8px;" disabled>撤销 (<span id="t2048-undo-count">3</span>)</button>
+        <button class="rank-btn" onclick="PlayerRank.renderLeaderboardPanel('2048', '2048')">🏆 排行榜</button>
       </div>
       <div class="game2048-board" id="t2048-board"></div>
       <p style="text-align:center;margin-top:8px;color:var(--text2);font-size:0.8rem;">
@@ -638,7 +820,7 @@
       <p class="desc">当红色背景变为绿色时尽快点击。测试你的视觉反应速度，共 5 轮。</p>
       <div class="score-bar">
         <div class="score-item"><div class="val" id="react-avg">--</div><div class="lbl">平均反应时(ms)</div></div>
-        <div class="score-item"><div class="val" id="react-best">--</div><div class="lbl">最快反应</div></div>
+        <div class="score-item"><div class="val" id="react-best">--</div><div class="lbl">最快反应(ms)</div></div>
         <div class="score-item"><div class="val" id="react-round">0/5</div><div class="lbl">当前轮次</div></div>
       </div>
       <div class="react-area" id="react-area">
@@ -646,6 +828,9 @@
         <div class="react-sub" id="react-sub">等待背景变绿后立即点击</div>
       </div>
       <div class="react-list" id="react-list"></div>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="rank-btn" onclick="PlayerRank.renderLeaderboardPanel('reaction', '反应测试')">🏆 排行榜</button>
+      </div>
       <div class="history-section" id="react-history-section" style="display:none">
         <h3>📊 历史记录</h3>
         <div class="history-list" id="react-history"></div>
@@ -667,6 +852,7 @@
       <div class="cat-controls">
         <button class="btn btn-primary" id="cat-start">开始游戏</button>
         <button class="btn btn-outline" id="cat-restart" style="display:none;margin-left:8px;">重新开始</button>
+        <button class="rank-btn" onclick="PlayerRank.renderLeaderboardPanel('cat-merge', '合成猫猫头')">🏆 排行榜</button>
       </div>
       <div class="cat-container" id="cat-container">
         <canvas id="cat-canvas"></canvas>
@@ -691,6 +877,12 @@
 
 <div class="footer">
   专注力游戏合集 · 所有游戏数据存储在浏览器本地 · 无需注册即可使用
+  <div class="data-mgmt">
+    <button onclick="PlayerRank.exportData()">📤 导出数据</button>
+    <button onclick="document.getElementById('import-file-input').click()">📥 导入数据</button>
+    <button onclick="PlayerRank.clearAllData()">🗑️ 清空排名</button>
+  </div>
+  <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="PlayerRank.importData(this.files[0], function(ok, msg){ showToast(msg); });">
 </div>
 
 <script>
@@ -705,6 +897,209 @@ function shuffle(arr) {
   }
   return a;
 }
+
+// ========================================
+// PLAYER RANK SYSTEM
+// ========================================
+var PlayerRank = (function() {
+  var RANK_KEY = 'fg_leaderboard';
+  var USER_KEY = 'fg_current_user';
+
+  function getUsername() {
+    return localStorage.getItem(USER_KEY) || '';
+  }
+
+  function setUsername(name) {
+    name = (name || '').trim().slice(0, 12);
+    if (!name) name = '玩家' + Math.floor(Math.random() * 9000 + 1000);
+    localStorage.setItem(USER_KEY, name);
+    return name;
+  }
+
+  function ensureUsername() {
+    var name = getUsername();
+    if (!name) {
+      name = prompt('请输入你的昵称（3-12字符）：', '玩家' + Math.floor(Math.random() * 9000 + 1000));
+      name = setUsername(name);
+    }
+    return name;
+  }
+
+  function loadBoard() {
+    return JSON.parse(localStorage.getItem(RANK_KEY) || '{}');
+  }
+
+  function saveBoard(board) {
+    localStorage.setItem(RANK_KEY, JSON.stringify(board));
+  }
+
+  function recordScore(gameKey, gameName, score) {
+    var username = ensureUsername();
+    var board = loadBoard();
+    if (!board[gameKey]) board[gameKey] = [];
+    var list = board[gameKey];
+    var found = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].username === username) {
+        found = list[i];
+        break;
+      }
+    }
+    if (!found) {
+      found = { username: username, bestScore: 0, gamesPlayed: 0, lastPlayed: '' };
+      list.push(found);
+    }
+    found.gamesPlayed = (found.gamesPlayed || 0) + 1;
+    found.lastPlayed = new Date().toLocaleString('zh-CN');
+    if (score > found.bestScore) {
+      found.bestScore = score;
+      saveBoard(board);
+      return { isNewRecord: true, prevBest: found.bestScore > score ? found.bestScore : score, username: username };
+    }
+    saveBoard(board);
+    return { isNewRecord: false, prevBest: found.bestScore, username: username };
+  }
+
+  function getLeaderboard(gameKey) {
+    var board = loadBoard();
+    var list = (board[gameKey] || []).slice();
+    list.sort(function(a, b) { return b.bestScore - a.bestScore; });
+    return list;
+  }
+
+  function getPlayerStats(username) {
+    var board = loadBoard();
+    var stats = [];
+    var games = {
+      'cat-merge': '合成猫猫头',
+      'schulte': '舒尔特方格',
+      'stroop': '斯特鲁普测试',
+      '2048': '2048',
+      'reaction': '反应测试'
+    };
+    var totalGames = 0;
+    for (var key in games) {
+      var list = board[key] || [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].username === username) {
+          stats.push({ gameKey: key, gameName: games[key], bestScore: list[i].bestScore, gamesPlayed: list[i].gamesPlayed, lastPlayed: list[i].lastPlayed });
+          totalGames += list[i].gamesPlayed;
+          break;
+        }
+      }
+    }
+    return { username: username, games: stats, totalGames: totalGames };
+  }
+
+  function exportData() {
+    var data = {
+      username: getUsername(),
+      leaderboard: loadBoard(),
+      exportedAt: new Date().toISOString()
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'focus-games-rank-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = JSON.parse(e.target.result);
+        if (data.leaderboard) {
+          var board = loadBoard();
+          for (var key in data.leaderboard) {
+            if (!board[key]) board[key] = [];
+            var existing = board[key];
+            data.leaderboard[key].forEach(function(entry) {
+              var found = null;
+              for (var i = 0; i < existing.length; i++) {
+                if (existing[i].username === entry.username) {
+                  found = existing[i];
+                  break;
+                }
+              }
+              if (found) {
+                found.bestScore = Math.max(found.bestScore, entry.bestScore);
+                found.gamesPlayed = Math.max(found.gamesPlayed, entry.gamesPlayed || 0);
+                found.lastPlayed = entry.lastPlayed || found.lastPlayed;
+              } else {
+                existing.push(entry);
+              }
+            });
+          }
+          saveBoard(board);
+          if (data.username) setUsername(data.username);
+          callback(true, '导入成功！');
+        } else {
+          callback(false, '无效的数据格式');
+        }
+      } catch (err) {
+        callback(false, '文件解析失败：' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function clearAllData() {
+    if (!confirm('确定要清空所有排名数据吗？此操作不可恢复！')) return;
+    localStorage.removeItem(RANK_KEY);
+    showToast('排名数据已清空');
+  }
+
+  function renderLeaderboardPanel(gameKey, gameName, anchorEl) {
+    var list = getLeaderboard(gameKey);
+    var username = getUsername();
+    var html = '<div class="rank-panel" id="rank-panel-' + gameKey + '">';
+    html += '<div class="rank-header"><h3>🏆 ' + gameName + ' 排行榜</h3><button class="rank-close" onclick="this.closest(\'.rank-panel\').remove()">×</button></div>';
+    if (list.length === 0) {
+      html += '<div class="rank-empty">暂无记录，快来玩一局吧！</div>';
+    } else {
+      html += '<div class="rank-list">';
+      list.slice(0, 50).forEach(function(entry, idx) {
+        var rankClass = idx === 0 ? 'gold' : (idx === 1 ? 'silver' : (idx === 2 ? 'bronze' : ''));
+        var isMe = entry.username === username ? ' rank-me' : '';
+        html += '<div class="rank-item ' + rankClass + isMe + '">';
+        html += '<span class="rank-pos">' + (idx + 1) + '</span>';
+        html += '<span class="rank-name">' + escapeHtml(entry.username) + '</span>';
+        html += '<span class="rank-score">' + entry.bestScore + '</span>';
+        html += '<span class="rank-games">' + (entry.gamesPlayed || 0) + '局</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    var existing = document.getElementById('rank-panel-' + gameKey);
+    if (existing) existing.remove();
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    document.body.appendChild(div.firstElementChild);
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  return {
+    getUsername: getUsername,
+    setUsername: setUsername,
+    ensureUsername: ensureUsername,
+    recordScore: recordScore,
+    getLeaderboard: getLeaderboard,
+    getPlayerStats: getPlayerStats,
+    exportData: exportData,
+    importData: importData,
+    clearAllData: clearAllData,
+    renderLeaderboardPanel: renderLeaderboardPanel
+  };
+})();
 
 function saveHistory(key, entry, maxLen) {
   maxLen = maxLen || 20;
@@ -825,6 +1220,9 @@ document.getElementById('nav').addEventListener('click', function(e) {
     }
     showBest();
 
+    var rankScore = Math.max(1, Math.round(1000 / (elapsed + errors * 2)));
+    PlayerRank.recordScore('schulte', '舒尔特方格', rankScore);
+
     var h = saveHistory(histKey, {
       game: '舒尔特方格',
       size: gridSize + '×' + gridSize,
@@ -944,6 +1342,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
     }
   }
 
+  var hiddenStart = 0;
+
   function showQuestion() {
     if (currentQ >= questions.length) {
       finishTest();
@@ -956,7 +1356,9 @@ document.getElementById('nav').addEventListener('click', function(e) {
     optionsEl.innerHTML = q.options.map(function(c) {
       return '<button class="stroop-opt" data-color="' + c.name + '">' + c.name + '色</button>';
     }).join('');
+    displayEl.classList.remove('correct-flash', 'wrong-flash');
     qStartTime = Date.now();
+    hiddenStart = 0;
   }
 
   function onAnswer(colorName) {
@@ -964,10 +1366,15 @@ document.getElementById('nav').addEventListener('click', function(e) {
     var q = questions[currentQ];
     var isCorrect = colorName === q.wordColor.name;
     var rt = Date.now() - qStartTime;
+    if (rt > 30000 || rt < 0) rt = 0;
 
     if (isCorrect) {
       correct++;
       score += Math.max(10, 100 - Math.floor(rt / 10));
+      displayEl.classList.add('correct-flash');
+    } else {
+      displayEl.classList.add('wrong-flash');
+      infoEl.textContent = '正确答案是 ' + q.wordColor.name + '色';
     }
     totalTime += rt;
 
@@ -985,8 +1392,20 @@ document.getElementById('nav').addEventListener('click', function(e) {
     avgTimeEl.textContent = Math.round(totalTime / (currentQ + 1));
 
     currentQ++;
-    setTimeout(function() { showQuestion(); }, 300);
+    var delay = isCorrect ? 300 : 500;
+    setTimeout(function() { showQuestion(); }, delay);
   }
+
+  document.addEventListener('visibilitychange', function() {
+    if (!testing) return;
+    if (document.hidden) {
+      hiddenStart = Date.now();
+    } else if (hiddenStart > 0) {
+      var delta = Date.now() - hiddenStart;
+      qStartTime += delta;
+      hiddenStart = 0;
+    }
+  });
 
   function finishTest() {
     testing = false;
@@ -995,6 +1414,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
     optionsEl.style.display = 'none';
     wordEl.textContent = '测试完成!';
     infoEl.textContent = '正确率 ' + ((correct / 20) * 100).toFixed(1) + '%，平均反应时 ' + Math.round(totalTime / 20) + 'ms';
+
+    PlayerRank.recordScore('stroop', '斯特鲁普测试', score);
 
     var h = saveHistory(histKey, {
       game: '斯特鲁普测试',
@@ -1063,13 +1484,22 @@ document.getElementById('nav').addEventListener('click', function(e) {
   var score = 0;
   var bestScore = parseInt(localStorage.getItem('fg_2048_best') || '0');
   var gameOver = false;
+  var undoHistory = [];
+  var undoRemaining = 3;
 
   var boardEl = document.getElementById('t2048-board');
   var scoreEl = document.getElementById('t2048-score');
   var bestEl = document.getElementById('t2048-best');
   var restartBtn = document.getElementById('t2048-restart');
+  var undoBtn = document.getElementById('t2048-undo');
+  var undoCountEl = document.getElementById('t2048-undo-count');
 
   bestEl.textContent = bestScore || '--';
+
+  function updateUndoBtn() {
+    undoCountEl.textContent = undoRemaining;
+    undoBtn.disabled = undoRemaining <= 0 || gameOver || undoHistory.length === 0;
+  }
 
   function emptyBoard() {
     return [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
@@ -1089,9 +1519,12 @@ document.getElementById('nav').addEventListener('click', function(e) {
     board = emptyBoard();
     score = 0;
     gameOver = false;
+    undoHistory = [];
+    undoRemaining = 3;
     addRandom();
     addRandom();
     scoreEl.textContent = '0';
+    updateUndoBtn();
     renderBoard();
   }
 
@@ -1178,10 +1611,30 @@ document.getElementById('nav').addEventListener('click', function(e) {
     return false;
   }
 
+  function deepCopyBoard(b) {
+    return b.map(function(row) { return row.slice(); });
+  }
+
+  function undoMove() {
+    if (undoRemaining <= 0 || undoHistory.length === 0 || gameOver) return;
+    var prev = undoHistory.pop();
+    board = prev.board;
+    score = prev.score;
+    undoRemaining--;
+    scoreEl.textContent = score;
+    updateUndoBtn();
+    renderBoard();
+    showToast('已撤销（剩余 ' + undoRemaining + ' 次）');
+  }
+
   function doMove(moveFn) {
     if (gameOver) return;
+    var oldBoard = deepCopyBoard(board);
+    var oldScore = score;
     var moved = moveFn();
     if (moved) {
+      undoHistory.push({ board: oldBoard, score: oldScore });
+      if (undoHistory.length > 10) undoHistory.shift();
       addRandom();
       renderBoard();
       scoreEl.textContent = score;
@@ -1192,6 +1645,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
       }
       if (!canMove()) {
         gameOver = true;
+        PlayerRank.recordScore('2048', '2048', score);
         setTimeout(function() { showToast('游戏结束！最终分数: ' + score); }, 100);
       }
       for (var r = 0; r < 4; r++)
@@ -1200,6 +1654,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
             showToast('🎉 达到 2048！你赢了！可以继续挑战更高分');
           }
     }
+    updateUndoBtn();
   }
 
   document.addEventListener('keydown', function(e) {
@@ -1215,10 +1670,14 @@ document.getElementById('nav').addEventListener('click', function(e) {
 
   var touchStartX = 0, touchStartY = 0;
   boardEl.addEventListener('touchstart', function(e) {
+    var panel = document.getElementById('panel-2048');
+    if (!panel.classList.contains('active')) return;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
   }, {passive: true});
   boardEl.addEventListener('touchend', function(e) {
+    var panel = document.getElementById('panel-2048');
+    if (!panel.classList.contains('active')) return;
     var dx = e.changedTouches[0].clientX - touchStartX;
     var dy = e.changedTouches[0].clientY - touchStartY;
     if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
@@ -1230,6 +1689,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
   });
 
   restartBtn.addEventListener('click', initGame);
+  undoBtn.addEventListener('click', undoMove);
   initGame();
 })();
 
@@ -1325,7 +1785,12 @@ document.getElementById('nav').addEventListener('click', function(e) {
         hintEl.textContent = '测试完成！';
         var avg = Math.round(times.reduce(function(a, b) { return a + b; }, 0) / times.length);
         var best = Math.min.apply(null, times);
-        subEl.textContent = '平均 ' + avg + 'ms · 最快 ' + best + 'ms · 点击重新测试';
+        var worldAvg = 250;
+        var cmp = avg < worldAvg ? '（优于世界平均 ' + worldAvg + 'ms）' : '（世界平均 ' + worldAvg + 'ms）';
+        subEl.textContent = '平均 ' + avg + 'ms · 最快 ' + best + 'ms ' + cmp + ' · 点击重新测试';
+
+        var rankScore = Math.max(1, Math.round(60000 / best));
+        PlayerRank.recordScore('reaction', '反应测试', rankScore);
 
         var h = saveHistory(histKey, {
           game: '反应测试',
@@ -1427,6 +1892,8 @@ document.getElementById('nav').addEventListener('click', function(e) {
   var SWING_RANGE = Math.PI / 2;
   var HOOK_MIN_LEN = 35;
   var mergedThisFrame = [];
+var badge = null;
+var badgeAlpha = 0;
 
   bestEl.textContent = bestScore;
 
@@ -1541,16 +2008,30 @@ document.getElementById('nav').addEventListener('click', function(e) {
           };
           cats.splice(j, 1);
           cats.splice(i, 1);
-          cats.push(newCat);
-          score += CAT_LEVELS[newLevel].score;
-          scoreEl.textContent = score;
-          if (score > bestScore) {
-            bestScore = score;
-            bestEl.textContent = bestScore;
-            localStorage.setItem('fg_cat_best', bestScore);
+
+          if (newLevel >= CAT_LEVELS.length - 1) {
+            showToast('🎉 恭喜解锁 ' + CAT_LEVELS[newLevel].name + '！');
+            badge = { x: 40, y: H - 40, r: 32, alpha: 0, level: newLevel };
+            mergedThisFrame.push({x: newCat.x, y: newCat.y, level: newLevel, frame: 0, maxFrames: 30});
+            score += CAT_LEVELS[newLevel].score;
+            scoreEl.textContent = score;
+            if (score > bestScore) {
+              bestScore = score;
+              bestEl.textContent = bestScore;
+              localStorage.setItem('fg_cat_best', bestScore);
+            }
+          } else {
+            cats.push(newCat);
+            mergedThisFrame.push({x: newCat.x, y: newCat.y, level: newLevel, frame: 0, maxFrames: 20});
+            score += CAT_LEVELS[newLevel].score;
+            scoreEl.textContent = score;
+            if (score > bestScore) {
+              bestScore = score;
+              bestEl.textContent = bestScore;
+              localStorage.setItem('fg_cat_best', bestScore);
+            }
+            showToast('合成 ' + CAT_LEVELS[newLevel].name + '！+' + CAT_LEVELS[newLevel].score);
           }
-          mergedThisFrame.push({x: newCat.x, y: newCat.y, level: newLevel});
-          showToast('合成 ' + CAT_LEVELS[newLevel].name + '！+' + CAT_LEVELS[newLevel].score);
           return;
         }
       }
@@ -1577,6 +2058,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
     gameoverEl.style.display = 'flex';
     restartBtn.style.display = 'inline-block';
     startBtn.style.display = 'none';
+    PlayerRank.recordScore('cat-merge', '合成猫猫头', score);
     var h = saveHistory('fg_cat_hist', { game: '合成猫猫头', score: score });
     renderHistory(h);
     historySection.style.display = 'block';
@@ -1884,18 +2366,37 @@ document.getElementById('nav').addEventListener('click', function(e) {
 
     for (var i = 0; i < mergedThisFrame.length; i++) {
       var m = mergedThisFrame[i];
+      var progress = m.frame / m.maxFrames;
+      var scale = 1 + 0.5 * (1 - progress) * Math.cos(progress * Math.PI * 2);
+      var alpha = 1 - progress;
+      ctx.globalAlpha = alpha;
       ctx.strokeStyle = CAT_LEVELS[m.level].border;
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(m.x, m.y, CAT_LEVELS[m.level].r + 8, 0, Math.PI * 2);
+      ctx.arc(m.x, m.y, CAT_LEVELS[m.level].r * scale + 8, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.globalAlpha = 1.0;
+      m.frame++;
     }
-    mergedThisFrame = [];
+    mergedThisFrame = mergedThisFrame.filter(function(m) { return m.frame < m.maxFrames; });
+
+    if (badge) {
+      badge.alpha = Math.min(1, badge.alpha + 0.02);
+      ctx.globalAlpha = badge.alpha;
+      drawCatFace(badge.x, badge.y, badge.r, badge.level);
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = '#333';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(CAT_LEVELS[badge.level].name, badge.x, badge.y + badge.r + 16);
+    }
   }
 
   function loop() {
-    update();
-    draw();
+    if (document.getElementById('panel-cat').classList.contains('active')) {
+      update();
+      draw();
+    }
     animId = requestAnimationFrame(loop);
   }
 
@@ -1970,6 +2471,13 @@ document.getElementById('nav').addEventListener('click', function(e) {
   window.addEventListener('resize', resizeCanvas);
   draw();
 })();
+
+// 初始化用户栏
+var userNameEl = document.getElementById('user-name-display');
+if (userNameEl) {
+  var storedName = PlayerRank.getUsername();
+  if (storedName) userNameEl.textContent = storedName;
+}
 
 // ========================================
 // TOAST
