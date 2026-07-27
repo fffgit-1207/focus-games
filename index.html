@@ -1466,42 +1466,14 @@ document.getElementById('nav').addEventListener('click', function(e) {
     var c = Math.cos(hook.angle);
     var catR = dropping.r;
 
-    var startY = hook.originY + Math.cos(hook.angle) * HOOK_MIN_LEN;
-    var startX = hook.originX + Math.sin(hook.angle) * HOOK_MIN_LEN;
-    var maxLen = (H - catR - startY) / c;
-    if (maxLen < 10 || maxLen > 9999) maxLen = 9999;
+    var startX = hook.originX + s * HOOK_MIN_LEN;
+    var startY = hook.originY + c * HOOK_MIN_LEN;
 
-    for (var i = 0; i < cats.length; i++) {
-      var cat = cats[i];
-      var dx0 = startX - cat.x;
-      var dy0 = startY + catR - cat.y;
-      var b = dx0 * s + dy0 * c;
-      var cc = dx0 * dx0 + dy0 * dy0 - (catR + cat.r + 2) * (catR + cat.r + 2);
-      var disc = b * b - cc;
-      if (disc < 0) continue;
-      var sq = Math.sqrt(disc);
-      var t1 = -b - sq;
-      var t2 = -b + sq;
-      var enterT = (t1 > 10) ? t1 : ((t2 > 10) ? t2 : -1);
-      if (enterT > 10 && enterT < maxLen) {
-        maxLen = enterT;
-      }
-    }
-
-    if (s > 0.001) {
-      var tR = (W - catR - startX) / s;
-      if (tR > 10 && tR < maxLen) maxLen = tR;
-    } else if (s < -0.001) {
-      var tL = (catR - startX) / s;
-      if (tL > 10 && tL < maxLen) maxLen = tL;
-    }
-
-    var dropLen = Math.max(10, maxLen);
-    dropping.x = startX + s * dropLen;
-    dropping.y = startY + c * dropLen + catR;
+    dropping.x = startX;
+    dropping.y = startY + catR;
     dropping.vx = 0;
-    dropping.vy = 0;
-    dropping.fixed = true;
+    dropping.vy = 4;
+    dropping.fixed = false;
     dropping.cooldown = 90;
     cats.push(dropping);
     dropping = null;
