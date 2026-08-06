@@ -1894,6 +1894,7 @@ document.getElementById('nav').addEventListener('click', function(e) {
   var mergedThisFrame = [];
 var badge = null;
 var badgeAlpha = 0;
+var unlockState = null; // { x, y, startTime, level }
 
   bestEl.textContent = bestScore;
 
@@ -2011,7 +2012,7 @@ var badgeAlpha = 0;
 
           if (newLevel >= CAT_LEVELS.length - 1) {
             showToast('🎉 恭喜解锁 ' + CAT_LEVELS[newLevel].name + '！');
-            badge = { x: 40, y: H - 40, r: 32, alpha: 0, level: newLevel };
+            unlockState = { x: newCat.x, y: newCat.y, startTime: Date.now(), level: newLevel };
             mergedThisFrame.push({x: newCat.x, y: newCat.y, level: newLevel, frame: 0, maxFrames: 30});
             score += CAT_LEVELS[newLevel].score;
             scoreEl.textContent = score;
@@ -2066,6 +2067,15 @@ var badgeAlpha = 0;
 
   function update() {
     if (!gameActive || gameOver) return;
+
+    // 解锁动画超时 -> 变成徽章
+    if (unlockState) {
+      var elapsed = Date.now() - unlockState.startTime;
+      if (elapsed > 2000) {
+        badge = { x: 40, y: 50, r: CAT_LEVELS[0].r, alpha: 0, level: unlockState.level };
+        unlockState = null;
+      }
+    }
 
     hook.angle = Math.sin(Date.now() * SWING_SPEED) * SWING_RANGE;
 
@@ -2379,6 +2389,48 @@ var badgeAlpha = 0;
       m.frame++;
     }
     mergedThisFrame = mergedThisFrame.filter(function(m) { return m.frame < m.maxFrames; });
+
+    // 解锁动画：大猫停留 + 烟花 + 文字
+    if (unlockState) {
+      var elapsed = Date.now() - unlockState.startTime;
+      var bigR = CAT_LEVELS[unlockState.level].r;
+
+      // 大猫在原位置停留 2 秒
+      if (elapsed < 2000) {
+        drawCatFace(unlockState.x, unlockState.y, bigR, unlockState.level);
+      }
+
+      // 烟花 0-1 秒
+      if (elapsed < 1000) {
+        var p = elapsed / 1000;
+        var particles = 24;
+        for (var i = 0; i < particles; i++) {
+          var angle = (i / particles) * Math.PI * 2 + p * 3;
+          var dist = p * 80 + Math.sin(i * 4.7) * 15;
+          var px = unlockState.x + Math.cos(angle) * dist;
+          var py = unlockState.y + Math.sin(angle) * dist;
+          var size = Math.max(1, 3 * (1 - p));
+          var a = 1 - p;
+          ctx.globalAlpha = a;
+          ctx.fillStyle = ['#FFD700', '#FF6347', '#FF69B4', '#00BFFF', '#32CD32', '#FFA500'][i % 6];
+          ctx.beginPath();
+          ctx.arc(px, py, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+      }
+
+      // 文字 0-2 秒，最后 0.5 秒淡出
+      if (elapsed < 2000) {
+        var textAlpha = elapsed < 1500 ? 1 : 1 - (elapsed - 1500) / 500;
+        ctx.globalAlpha = textAlpha;
+        ctx.fillStyle = '#d4a017';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('恭喜解锁大萌猫！', unlockState.x, unlockState.y - bigR - 25);
+        ctx.globalAlpha = 1.0;
+      }
+    }
 
     if (badge) {
       badge.alpha = Math.min(1, badge.alpha + 0.02);
